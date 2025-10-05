@@ -1,37 +1,57 @@
-# Prak.Mobile 2025/2026 (Modul 1–6)
+# Prak.Mobile 2025/2026 (Modul 0–6)
 
-Repository ini berisi materi dan implementasi untuk mata kuliah Praktikum Mobile
-tahun ajaran 2025/2026 (semester ganjil). Materi dibagi dalam modul-modul yang dapat
-diakses pada branch masing-masing.
+Repository ini berisi materi dan implementasi untuk mata kuliah Praktikum Mobile tahun ajaran 2025/2026 (semester ganjil). Materi dibagi dalam modul-modul yang dapat diakses pada branch masing-masing.
 
-Ringkasan modul:
+## Ringkasan Modul
 
-1. Modul 1 — StatefulWidget vs StatelessWidget
-	- Konsep widget tanpa state dan dengan state.
-	- Siklus hidup (lifecycle) widget stateful.
-	- Kapan menggunakan masing-masing tipe widget dan contoh sederhana.
+### **Modul 0: Introducing Flutter, Configure Flutter Environment, Dart Syntax, and Create New Flutter Project**
+- Setup Flutter environment dan konfigurasi Flutter
+- Pengenalan Dart Syntax
+- Membuat proyek Flutter baru
 
-2. Modul 2 — UI Responsif
-	- Teknik membangun UI yang responsif di Flutter.
-	- Penggunaan `MediaQuery` untuk mendapatkan ukuran layar dan orientasi.
-	- Penggunaan `LayoutBuilder` untuk menyesuaikan tata letak berdasarkan constraints.
+### **Modul 1: StatelessWidget vs StatefulWidget & Navigasi**
+- Membedakan konsep, siklus hidup, dan kegunaan antara StatelessWidget dan StatefulWidget
+- Memahami paradigma navigasi di Flutter
+- Implementasi routing dan navigation patterns
 
-3. Modul 3 — Pemanggilan API dan Penanganan Async
-	- Cara melakukan HTTP request (GET/POST) dari aplikasi mobile.
-	- Penanganan operasi asynchronous dengan `async` / `await` dan `Future`.
-	- Menangani error, loading state, dan parsing JSON.
+### **Modul 2: Responsivitas UI dan Konsumsi Daya Animasi**
+- MediaQuery vs LayoutBuilder untuk UI responsif
+- Theming dan customization
+- AnimatedContainer vs AnimationController
+- Pengelolaan aset responsif di Flutter
 
-4. Modul 4 — Penyimpanan Lokal dan Cloud
-	- Opsi penyimpanan lokal (mis. SharedPreferences, SQLite / sqflite).
-	- Integrasi dengan layanan cloud (mis. Firebase) untuk penyimpanan dan autentikasi.
+### **Modul 3: API Call & Async Handling**
+- Konsumsi REST API
+- HTTP requests dan JSON parsing
+- Error handling dan async programming di Flutter
+- Implementasi dengan GetX state management
 
-5. Modul 5 — (On Progress)
-	- Konten sedang dalam pengerjaan.
+### **Modul 4: Penyimpanan Lokal & Cloud**
+- Penyimpanan data lokal (SharedPreferences, SQLite)
+- Cloud storage integration
+- Integrasi dengan backend di Flutter menggunakan GetX
 
-6. Modul 6 — (On Progress)
-	- Konten sedang dalam pengerjaan.
+### **Modul 5: Location-Aware**
+- Implementasi fitur location-aware di Flutter
+- GPS dan maps integration
+- Geolocation services
+- Location-based features dengan GetX
 
-Informasi tambahan:
+### **Modul 6: Push Notification**
+- Implementasi push notification di Flutter
+- Firebase Cloud Messaging (FCM)
+- Local notifications
+- Notification handling dan integrasi dengan backend menggunakan GetX
 
-- Dibuat oleh: Program Studi Informatika, Universitas Muhammadiyah Malang
-- Tahun: 2025/2026 (Semester Ganjil)
+---
+
+## Informasi Tambahan
+
+- **Dibuat oleh**: Program Studi Informatika, Universitas Muhammadiyah Malang
+- **Tahun Ajaran**: 2025/2026 (Semester Ganjil)
+- **State Management**: GetX (digunakan mulai Modul 3)
+
+## Cara Menggunakan Repository
+
+Setiap modul tersedia dalam branch terpisah. Untuk mengakses modul tertentu:
+
