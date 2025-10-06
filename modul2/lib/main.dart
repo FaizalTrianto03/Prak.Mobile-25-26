@@ -56,7 +56,7 @@ ThemeData _buildLightTheme() {
     ),
     
     // Card theme
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: Colors.white,
       elevation: 2,
       shadowColor: Colors.black.withOpacity(0.1),
@@ -125,7 +125,7 @@ ThemeData _buildDarkTheme() {
     ),
     
     // Card theme untuk dark mode
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: const Color(0xFF1E1E1E),
       elevation: 2,
       shadowColor: Colors.black.withOpacity(0.3),
