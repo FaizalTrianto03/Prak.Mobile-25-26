@@ -7,6 +7,7 @@ abstract class Routes {
   static const DEMO_STATELESS = _Paths.DEMO_STATELESS;
   static const DEMO_STATEFUL = _Paths.DEMO_STATEFUL;
   static const PRODUCT_CATALOG = _Paths.PRODUCT_CATALOG;
+  static const PRODUCT_CATALOG_LAYOUTBUILDER = _Paths.PRODUCT_CATALOG_LAYOUTBUILDER;
 }
 
 abstract class _Paths {
@@ -15,4 +16,5 @@ abstract class _Paths {
   static const DEMO_STATELESS = '/demo/stateless';
   static const DEMO_STATEFUL = '/demo/stateful';
   static const PRODUCT_CATALOG = '/product-catalog';
+  static const PRODUCT_CATALOG_LAYOUTBUILDER = '/product-catalog-layoutbuilder';
 }
