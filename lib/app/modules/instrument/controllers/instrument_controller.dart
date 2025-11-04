@@ -18,6 +18,21 @@ class InstrumentController extends GetxController {
     loadInstruments();
   }
 
+  @override
+  void onReady() {
+    super.onReady();
+    // Refresh data when controller is ready
+    ever(instruments, (_) {
+      print('Instruments list updated: ${instruments.length} items');
+    });
+  }
+
+  // Called when page is resumed (navigated back from another page)
+  void onResume() {
+    print('InstrumentListView resumed - refreshing data');
+    loadInstruments();
+  }
+
   // Load instruments
   Future<void> loadInstruments() async {
     isLoading.value = true;
@@ -78,10 +93,15 @@ class InstrumentController extends GetxController {
   }
 
   // Navigate to form
-  void goToForm({InstrumentModel? instrument}) {
-    Get.toNamed(
+  void goToForm({InstrumentModel? instrument}) async {
+    final result = await Get.toNamed(
       Routes.INSTRUMENT_FORM,
       arguments: instrument,
     );
+    
+    // Refresh list if form returns true (data was saved)
+    if (result == true) {
+      loadInstruments();
+    }
   }
 }

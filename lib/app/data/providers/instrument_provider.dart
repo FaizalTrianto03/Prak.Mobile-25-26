@@ -28,7 +28,9 @@ class InstrumentProvider extends GetxService {
   // Create instrument
   Future<void> createInstrument(InstrumentModel instrument) async {
     try {
-      await _supabaseService.from('instruments').insert(instrument.toJson());
+      await _supabaseService
+          .from('instruments')
+          .insert(instrument.toJsonForInsert());
       print('Instrument added successfully: ${instrument.name}');
     } catch (e) {
       print('Error adding instrument: $e');
@@ -41,7 +43,7 @@ class InstrumentProvider extends GetxService {
     try {
       await _supabaseService
           .from('instruments')
-          .update(instrument.toJson())
+          .update(instrument.toJsonForInsert())
           .eq('id', instrument.id!);
       print(
           'Instrument updated successfully (ID: ${instrument.id}): ${instrument.name}');

@@ -7,46 +7,14 @@ import '../../../routes/app_pages.dart';
 class AuthController extends GetxController {
   final AuthProvider _authProvider = Get.find();
 
-  // Controllers
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-  final confirmPasswordController = TextEditingController();
-
   // Observable variables
   final isLoading = false.obs;
-  final obscurePassword = true.obs;
-  final obscureConfirmPassword = true.obs;
 
-  // Form key
-  final formKey = GlobalKey<FormState>();
-
-  @override
-  void onClose() {
-    emailController.dispose();
-    passwordController.dispose();
-    confirmPasswordController.dispose();
-    super.onClose();
-  }
-
-  // Toggle password visibility
-  void togglePasswordVisibility() {
-    obscurePassword.value = !obscurePassword.value;
-  }
-
-  void toggleConfirmPasswordVisibility() {
-    obscureConfirmPassword.value = !obscureConfirmPassword.value;
-  }
-
-  // Login
-  Future<void> login() async {
-    if (!formKey.currentState!.validate()) return;
-
+  // Login with email and password parameters
+  Future<void> login(String email, String password) async {
     isLoading.value = true;
     try {
-      await _authProvider.login(
-        emailController.text.trim(),
-        passwordController.text,
-      );
+      await _authProvider.login(email.trim(), password);
       Get.snackbar(
         'Success',
         AppStrings.loginSuccess,
@@ -66,16 +34,11 @@ class AuthController extends GetxController {
     }
   }
 
-  // Register
-  Future<void> register() async {
-    if (!formKey.currentState!.validate()) return;
-
+  // Register with email and password parameters
+  Future<void> register(String email, String password) async {
     isLoading.value = true;
     try {
-      await _authProvider.register(
-        emailController.text.trim(),
-        passwordController.text,
-      );
+      await _authProvider.register(email.trim(), password);
       Get.snackbar(
         'Success',
         AppStrings.registerSuccess,
@@ -149,12 +112,12 @@ class AuthController extends GetxController {
     return null;
   }
 
-  // Confirm password validator
-  String? validateConfirmPassword(String? value) {
+  // Confirm password validator (requires password for comparison)
+  String? validateConfirmPassword(String? value, String password) {
     if (value == null || value.isEmpty) {
       return AppStrings.pleaseConfirmPassword;
     }
-    if (value != passwordController.text) {
+    if (value != password) {
       return AppStrings.passwordsDoNotMatch;
     }
     return null;

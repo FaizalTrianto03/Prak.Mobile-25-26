@@ -6,6 +6,7 @@ class InstrumentBinding extends Bindings {
   void dependencies() {
     Get.lazyPut<InstrumentController>(
       () => InstrumentController(),
+      fenix: true,  // Keep controller alive when navigating
     );
   }
 }

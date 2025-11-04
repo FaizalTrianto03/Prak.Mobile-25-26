@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../core/values/app_colors.dart';
 import '../../../core/values/app_strings.dart';
 import '../controllers/instrument_controller.dart';
 
@@ -9,11 +8,11 @@ class InstrumentListView extends GetView<InstrumentController> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text(AppStrings.instruments),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
@@ -30,14 +29,13 @@ class InstrumentListView extends GetView<InstrumentController> {
                 Icon(
                   Icons.music_note_outlined,
                   size: 100,
-                  color: Colors.grey[400],
+                  color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                 ),
                 const SizedBox(height: 16),
                 Text(
                   AppStrings.noData,
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.grey[600],
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -53,15 +51,11 @@ class InstrumentListView extends GetView<InstrumentController> {
             itemBuilder: (context, index) {
               final instrument = controller.instruments[index];
               return Card(
-                elevation: 2,
                 margin: const EdgeInsets.only(bottom: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
                 child: ListTile(
                   contentPadding: const EdgeInsets.all(16),
                   leading: CircleAvatar(
-                    backgroundColor: AppColors.primary,
+                    backgroundColor: theme.colorScheme.primary,
                     child: const Icon(
                       Icons.music_note,
                       color: Colors.white,
@@ -69,9 +63,8 @@ class InstrumentListView extends GetView<InstrumentController> {
                   ),
                   title: Text(
                     instrument.name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   subtitle: instrument.description != null
@@ -81,29 +74,32 @@ class InstrumentListView extends GetView<InstrumentController> {
                             instrument.description!,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
                           ),
                         )
                       : null,
                   trailing: PopupMenuButton(
                     icon: const Icon(Icons.more_vert),
                     itemBuilder: (context) => [
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'edit',
                         child: Row(
                           children: [
-                            Icon(Icons.edit, color: AppColors.primary),
-                            SizedBox(width: 8),
-                            Text(AppStrings.edit),
+                            Icon(Icons.edit_outlined, color: theme.colorScheme.primary),
+                            const SizedBox(width: 8),
+                            const Text(AppStrings.edit),
                           ],
                         ),
                       ),
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'delete',
                         child: Row(
                           children: [
-                            Icon(Icons.delete, color: AppColors.error),
-                            SizedBox(width: 8),
-                            Text(AppStrings.delete),
+                            Icon(Icons.delete_outline, color: theme.colorScheme.error),
+                            const SizedBox(width: 8),
+                            const Text(AppStrings.delete),
                           ],
                         ),
                       ),
@@ -127,7 +123,6 @@ class InstrumentListView extends GetView<InstrumentController> {
       }),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => controller.goToForm(),
-        backgroundColor: AppColors.primary,
         icon: const Icon(Icons.add),
         label: const Text(AppStrings.addInstrument),
       ),

@@ -23,13 +23,22 @@ class InstrumentModel {
     );
   }
 
-  // To JSON
+  // To JSON (for reading data)
   Map<String, dynamic> toJson() {
     return {
       if (id != null) 'id': id,
       'name': name,
       if (description != null) 'description': description,
       if (createdAt != null) 'created_at': createdAt!.toIso8601String(),
+    };
+  }
+
+  // To JSON for insert/update (exclude id and created_at - they're auto-generated)
+  Map<String, dynamic> toJsonForInsert() {
+    return {
+      'name': name,
+      if (description != null && description!.isNotEmpty) 
+        'description': description,
     };
   }
 

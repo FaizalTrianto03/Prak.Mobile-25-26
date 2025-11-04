@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import '../../../data/models/instrument_model.dart';
 import '../../../data/providers/instrument_provider.dart';
 import '../../../core/values/app_strings.dart';
+import '../controllers/instrument_controller.dart';
+import '../../../routes/app_pages.dart';
 
 class InstrumentFormController extends GetxController {
   final InstrumentProvider _instrumentProvider = Get.find();
@@ -64,7 +66,20 @@ class InstrumentFormController extends GetxController {
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
-      Get.back(result: true);
+
+      // Trigger refresh in list controller before going back
+      try {
+        final listController = Get.find<InstrumentController>();
+        // Fire-and-forget refresh to avoid blocking navigation
+        // ignore: unawaited_futures
+        listController.loadInstruments();
+      } catch (e) {
+        print('InstrumentController not found: $e');
+      }
+
+      // Ensure any snackbars are closed, then return to the existing list page
+      Get.closeAllSnackbars();
+      Get.until((route) => route.settings.name == Routes.INSTRUMENT_LIST);
     } catch (e) {
       Get.snackbar(
         'Error',
@@ -96,7 +111,20 @@ class InstrumentFormController extends GetxController {
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
-      Get.back(result: true);
+
+      // Trigger refresh in list controller before going back
+      try {
+        final listController = Get.find<InstrumentController>();
+        // Fire-and-forget refresh to avoid blocking navigation
+        // ignore: unawaited_futures
+        listController.loadInstruments();
+      } catch (e) {
+        print('InstrumentController not found: $e');
+      }
+
+      // Ensure any snackbars are closed, then return to the existing list page
+      Get.closeAllSnackbars();
+      Get.until((route) => route.settings.name == Routes.INSTRUMENT_LIST);
     } catch (e) {
       Get.snackbar(
         'Error',
@@ -126,65 +154,70 @@ class InstrumentFormView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(controller.isEditing
-            ? AppStrings.editInstrument
-            : AppStrings.addInstrument),
-        elevation: 2,
+        title: Text(
+          controller.isEditing
+              ? AppStrings.editInstrument
+              : AppStrings.addInstrument,
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(24),
         child: Form(
           key: controller.formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              TextFormField(
-                controller: controller.nameController,
-                decoration: const InputDecoration(
-                  labelText: AppStrings.instrumentName,
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.music_note),
-                  hintText: 'Enter instrument name',
+              Obx(
+                () => TextFormField(
+                  controller: controller.nameController,
+                  decoration: const InputDecoration(
+                    labelText: AppStrings.instrumentName,
+                    prefixIcon: Icon(Icons.music_note_outlined),
+                    hintText: 'Enter instrument name',
+                  ),
+                  textInputAction: TextInputAction.next,
+                  validator: controller.validateName,
+                  enabled: !controller.isLoading.value,
                 ),
-                textInputAction: TextInputAction.next,
-                validator: controller.validateName,
-                enabled: !controller.isLoading.value,
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                controller: controller.descriptionController,
-                decoration: const InputDecoration(
-                  labelText: AppStrings.description,
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.description),
-                  hintText: 'Enter description (optional)',
-                ),
-                maxLines: 3,
-                textInputAction: TextInputAction.done,
-                enabled: !controller.isLoading.value,
-              ),
-              const SizedBox(height: 24),
               Obx(
-                () => ElevatedButton(
+                () => TextFormField(
+                  controller: controller.descriptionController,
+                  decoration: const InputDecoration(
+                    labelText: AppStrings.description,
+                    prefixIcon: Icon(Icons.description_outlined),
+                    hintText: 'Enter description (optional)',
+                    alignLabelWithHint: true,
+                  ),
+                  maxLines: 3,
+                  textInputAction: TextInputAction.done,
+                  enabled: !controller.isLoading.value,
+                ),
+              ),
+              const SizedBox(height: 32),
+              Obx(
+                () => FilledButton(
                   onPressed: controller.isLoading.value
                       ? null
                       : controller.submitForm,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
                   child: controller.isLoading.value
-                      ? const SizedBox(
+                      ? SizedBox(
                           height: 20,
                           width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: theme.colorScheme.onPrimary,
+                          ),
                         )
                       : Text(
                           controller.isEditing
                               ? AppStrings.updateInstrument
                               : AppStrings.addInstrument,
-                          style: const TextStyle(fontSize: 16),
                         ),
                 ),
               ),
