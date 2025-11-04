@@ -50,4 +50,11 @@ class AppStrings {
   static const String edit = 'Edit';
   static const String update = 'Update';
   static const String updateInstrument = 'Update Instrument';
+  static const String noData = 'No data available';
+  static const String home = 'Home';
+  static const String welcome = 'Welcome';
+  static const String welcomeBack = 'Welcome Back';
+  static const String manageInstruments = 'Manage Instruments';
+  static const String totalInstruments = 'Total Instruments';
+  static const String viewAll = 'View All';
 }

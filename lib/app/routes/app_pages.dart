@@ -5,7 +5,9 @@ import '../modules/auth/views/login_view.dart';
 import '../modules/auth/views/register_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
-import '../modules/home/views/instrument_form_view.dart';
+import '../modules/instrument/bindings/instrument_binding.dart';
+import '../modules/instrument/views/instrument_list_view.dart';
+import '../modules/instrument/views/instrument_form_view.dart';
 
 part 'app_routes.dart';
 
@@ -31,9 +33,14 @@ class AppPages {
       binding: HomeBinding(),
     ),
     GetPage(
+      name: _Paths.INSTRUMENT_LIST,
+      page: () => const InstrumentListView(),
+      binding: InstrumentBinding(),
+    ),
+    GetPage(
       name: _Paths.INSTRUMENT_FORM,
       page: () => InstrumentFormView(),
-      binding: HomeBinding(),
+      binding: InstrumentBinding(),
     ),
   ];
 }
