@@ -46,7 +46,9 @@ class AuthController extends GetxController {
         colorText: Colors.white,
         duration: const Duration(seconds: 4),
       );
-      Get.back();
+      // Ensure any snackbars are closed, then return to the existing login page
+      Get.closeAllSnackbars();
+      Get.until((route) => route.settings.name == Routes.LOGIN);
     } catch (e) {
       Get.snackbar(
         'Error',
