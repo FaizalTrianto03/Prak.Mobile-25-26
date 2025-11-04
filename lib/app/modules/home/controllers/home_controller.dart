@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../../data/models/instrument_model.dart';
 import '../../../data/providers/instrument_provider.dart';
 import '../../../core/values/app_strings.dart';
+import '../../../routes/app_pages.dart';
 
 class HomeController extends GetxController {
   final InstrumentProvider _instrumentProvider = Get.find();
@@ -79,7 +80,7 @@ class HomeController extends GetxController {
   // Navigate to form
   void goToForm({InstrumentModel? instrument}) {
     Get.toNamed(
-      '/instrument-form',
+      Routes.INSTRUMENT_FORM,
       arguments: instrument,
     );
   }

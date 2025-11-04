@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../core/values/app_strings.dart';
-import '../../../routes/app_routes.dart';
+import '../../../routes/app_pages.dart';
 
 class AuthController extends GetxController {
   final AuthProvider _authProvider = Get.find();
@@ -53,7 +53,7 @@ class AuthController extends GetxController {
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
-      Get.offAllNamed(AppRoutes.home);
+      Get.offAllNamed(Routes.HOME);
     } catch (e) {
       Get.snackbar(
         'Error',
@@ -118,13 +118,13 @@ class AuthController extends GetxController {
 
     if (confirm == true) {
       await _authProvider.logout();
-      Get.offAllNamed(AppRoutes.login);
+      Get.offAllNamed(Routes.LOGIN);
     }
   }
 
   // Navigate to register
   void goToRegister() {
-    Get.toNamed(AppRoutes.register);
+    Get.toNamed(Routes.REGISTER);
   }
 
   // Email validator

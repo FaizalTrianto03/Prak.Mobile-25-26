@@ -1,43 +1,39 @@
 import 'package:get/get.dart';
+
+import '../modules/auth/bindings/auth_binding.dart';
 import '../modules/auth/views/login_view.dart';
 import '../modules/auth/views/register_view.dart';
-import '../modules/auth/controllers/auth_controller.dart';
+import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/home/views/instrument_form_view.dart';
-import '../modules/home/controllers/home_controller.dart';
-import 'app_routes.dart';
+
+part 'app_routes.dart';
 
 class AppPages {
-  static const initial = AppRoutes.login;
+  AppPages._();
+
+  static const INITIAL = Routes.LOGIN;
 
   static final routes = [
     GetPage(
-      name: AppRoutes.login,
+      name: _Paths.LOGIN,
       page: () => const LoginView(),
-      binding: BindingsBuilder(() {
-        Get.lazyPut<AuthController>(() => AuthController());
-      }),
+      binding: AuthBinding(),
     ),
     GetPage(
-      name: AppRoutes.register,
+      name: _Paths.REGISTER,
       page: () => const RegisterView(),
-      binding: BindingsBuilder(() {
-        Get.lazyPut<AuthController>(() => AuthController());
-      }),
+      binding: AuthBinding(),
     ),
     GetPage(
-      name: AppRoutes.home,
+      name: _Paths.HOME,
       page: () => const HomeView(),
-      binding: BindingsBuilder(() {
-        Get.lazyPut<HomeController>(() => HomeController());
-      }),
+      binding: HomeBinding(),
     ),
     GetPage(
-      name: AppRoutes.instrumentForm,
+      name: _Paths.INSTRUMENT_FORM,
       page: () => InstrumentFormView(),
-      binding: BindingsBuilder(() {
-        Get.lazyPut<HomeController>(() => HomeController());
-      }),
+      binding: HomeBinding(),
     ),
   ];
 }
