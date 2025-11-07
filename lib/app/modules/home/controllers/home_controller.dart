@@ -5,9 +5,9 @@ import '../../../routes/app_pages.dart';
 class HomeController extends GetxController {
   final AuthProvider _authProvider = Get.find();
 
-  // Navigate to instruments list
-  void goToInstruments() {
-    Get.toNamed(Routes.INSTRUMENT_LIST);
+  // Navigate to notes list
+  void goToNotes() {
+    Get.toNamed(Routes.NOTE_LIST);
   }
 
   // Get user email

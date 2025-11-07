@@ -5,8 +5,8 @@ abstract class Routes {
   static const LOGIN = _Paths.LOGIN;
   static const REGISTER = _Paths.REGISTER;
   static const HOME = _Paths.HOME;
-  static const INSTRUMENT_LIST = _Paths.INSTRUMENT_LIST;
-  static const INSTRUMENT_FORM = _Paths.INSTRUMENT_FORM;
+  static const NOTE_LIST = _Paths.NOTE_LIST;
+  static const NOTE_FORM = _Paths.NOTE_FORM;
 }
 
 abstract class _Paths {
@@ -14,6 +14,6 @@ abstract class _Paths {
   static const LOGIN = '/login';
   static const REGISTER = '/register';
   static const HOME = '/home';
-  static const INSTRUMENT_LIST = '/instruments';
-  static const INSTRUMENT_FORM = '/instrument-form';
+  static const NOTE_LIST = '/notes';
+  static const NOTE_FORM = '/note-form';
 }

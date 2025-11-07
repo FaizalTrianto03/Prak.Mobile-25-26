@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'app/core/theme/app_theme.dart';
+import 'app/core/values/app_strings.dart';
 import 'app/data/services/supabase_service.dart';
 import 'app/data/providers/auth_provider.dart';
-import 'app/data/providers/instrument_provider.dart';
+import 'app/data/providers/note_provider.dart';
 import 'app/routes/app_pages.dart';
 
 Future<void> main() async {
@@ -28,7 +29,7 @@ Future<void> main() async {
 
     // Initialize Providers
     Get.put(AuthProvider());
-    Get.put(InstrumentProvider());
+    Get.put(NoteProvider());
 
     if (kDebugMode) {
       debugPrint('✅ All services initialized successfully');
@@ -114,7 +115,7 @@ class MyApp extends StatelessWidget {
     final authProvider = Get.find<AuthProvider>();
 
     return GetMaterialApp(
-      title: 'Instruments CRUD',
+      title: AppStrings.appName,
       theme: AppTheme.lightTheme,
       debugShowCheckedModeBanner: false,
       initialRoute: authProvider.isAuthenticated ? Routes.HOME : Routes.LOGIN,

@@ -26,7 +26,7 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<AuthController>();
-    
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
@@ -46,7 +46,9 @@ class _LoginViewState extends State<LoginView> {
                       gradient: LinearGradient(
                         colors: [
                           Theme.of(context).colorScheme.primary,
-                          Theme.of(context).colorScheme.primary.withValues(alpha: 0.7),
+                          Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.7),
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -54,20 +56,22 @@ class _LoginViewState extends State<LoginView> {
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.3),
                           blurRadius: 20,
                           offset: const Offset(0, 10),
                         ),
                       ],
                     ),
                     child: const Icon(
-                      Icons.music_note_rounded,
+                      Icons.note_alt_outlined,
                       size: 50,
                       color: Colors.white,
                     ),
                   ),
                   const SizedBox(height: 32),
-                  
+
                   // Title
                   Text(
                     AppStrings.appName,
@@ -79,7 +83,7 @@ class _LoginViewState extends State<LoginView> {
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(height: 48),
-                  
+
                   // Email Field
                   TextFormField(
                     controller: _emailController,
@@ -93,7 +97,7 @@ class _LoginViewState extends State<LoginView> {
                     enabled: !controller.isLoading.value,
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Password Field
                   Obx(
                     () => TextFormField(
@@ -109,7 +113,8 @@ class _LoginViewState extends State<LoginView> {
                                 ? Icons.visibility_outlined
                                 : Icons.visibility_off_outlined,
                           ),
-                          onPressed: () => _obscurePassword.value = !_obscurePassword.value,
+                          onPressed: () =>
+                              _obscurePassword.value = !_obscurePassword.value,
                         ),
                       ),
                       validator: controller.validatePassword,
@@ -117,7 +122,7 @@ class _LoginViewState extends State<LoginView> {
                     ),
                   ),
                   const SizedBox(height: 32),
-                  
+
                   // Login Button
                   Obx(
                     () => SizedBox(
@@ -140,7 +145,9 @@ class _LoginViewState extends State<LoginView> {
                                 width: 24,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
                                 ),
                               )
                             : const Text(AppStrings.login),
@@ -148,7 +155,7 @@ class _LoginViewState extends State<LoginView> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  
+
                   // Register Link
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,

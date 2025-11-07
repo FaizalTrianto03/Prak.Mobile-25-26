@@ -82,14 +82,14 @@ class HomeView extends GetView<HomeController> {
               ),
               const SizedBox(height: 16),
 
-              // Instruments Card
+              // Notes Card
               _buildMenuCard(
                 context: context,
-                icon: Icons.library_music,
-                title: AppStrings.instruments,
-                subtitle: AppStrings.manageInstruments,
+                icon: Icons.note_alt_outlined,
+                title: AppStrings.notes,
+                subtitle: AppStrings.manageNotes,
                 color: theme.colorScheme.primary,
-                onTap: controller.goToInstruments,
+                onTap: controller.goToNotes,
               ),
             ],
           ),

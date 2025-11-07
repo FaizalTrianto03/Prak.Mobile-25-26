@@ -1,42 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/values/app_strings.dart';
-import '../controllers/instrument_controller.dart';
+import '../controllers/note_controller.dart';
 
-class InstrumentListView extends GetView<InstrumentController> {
-  const InstrumentListView({super.key});
+class NoteListView extends GetView<NoteController> {
+  const NoteListView({super.key});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.instruments),
+        title: const Text(AppStrings.notes),
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          return const Center(child: CircularProgressIndicator());
         }
 
-        if (controller.instruments.isEmpty) {
+        if (controller.notes.isEmpty) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  Icons.music_note_outlined,
-                  size: 100,
+                  Icons.note_alt_outlined,
+                  size: 96,
                   color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  AppStrings.noData,
+                  AppStrings.noNotesYet,
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  AppStrings.tapToAddNote,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
               ],
             ),
@@ -44,44 +50,40 @@ class InstrumentListView extends GetView<InstrumentController> {
         }
 
         return RefreshIndicator(
-          onRefresh: controller.loadInstruments,
+          onRefresh: controller.loadNotes,
           child: ListView.builder(
-            itemCount: controller.instruments.length,
             padding: const EdgeInsets.all(16),
+            itemCount: controller.notes.length,
             itemBuilder: (context, index) {
-              final instrument = controller.instruments[index];
+              final note = controller.notes[index];
               return Card(
                 margin: const EdgeInsets.only(bottom: 12),
                 child: ListTile(
                   contentPadding: const EdgeInsets.all(16),
-                  leading: CircleAvatar(
-                    backgroundColor: theme.colorScheme.primary,
-                    child: const Icon(
-                      Icons.music_note,
-                      color: Colors.white,
-                    ),
-                  ),
                   title: Text(
-                    instrument.name,
+                    note.title,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  subtitle: instrument.description != null
-                      ? Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: Text(
-                            instrument.description!,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        )
-                      : null,
-                  trailing: PopupMenuButton(
+                  subtitle: Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      note.content,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                  ),
+                  trailing: PopupMenuButton<String>(
                     icon: const Icon(Icons.more_vert),
+                    onSelected: (value) {
+                      if (value == 'edit') {
+                        controller.goToForm(note: note);
+                      } else if (value == 'delete') {
+                        controller.deleteNote(note.id!, note.title);
+                      }
+                    },
                     itemBuilder: (context) => [
                       PopupMenuItem(
                         value: 'edit',
@@ -104,16 +106,6 @@ class InstrumentListView extends GetView<InstrumentController> {
                         ),
                       ),
                     ],
-                    onSelected: (value) {
-                      if (value == 'edit') {
-                        controller.goToForm(instrument: instrument);
-                      } else if (value == 'delete') {
-                        controller.deleteInstrument(
-                          instrument.id!,
-                          instrument.name,
-                        );
-                      }
-                    },
                   ),
                 ),
               );
@@ -124,8 +116,9 @@ class InstrumentListView extends GetView<InstrumentController> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => controller.goToForm(),
         icon: const Icon(Icons.add),
-        label: const Text(AppStrings.addInstrument),
+        label: const Text(AppStrings.addNote),
       ),
     );
   }
 }
+

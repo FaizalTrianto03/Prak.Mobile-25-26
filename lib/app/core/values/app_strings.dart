@@ -1,6 +1,6 @@
 class AppStrings {
   // App
-  static const String appName = 'Instruments CRUD';
+  static const String appName = 'Notes CRUD';
   
   // Auth
   static const String login = 'Login';
@@ -22,7 +22,8 @@ class AppStrings {
   static const String passwordMinLength = 'Password must be at least 6 characters';
   static const String pleaseConfirmPassword = 'Please confirm password';
   static const String passwordsDoNotMatch = 'Passwords do not match';
-  static const String pleaseEnterInstrumentName = 'Please enter instrument name';
+  static const String pleaseEnterNoteTitle = 'Please enter note title';
+  static const String pleaseEnterNoteContent = 'Please enter note content';
   
   // Messages
   static const String loginSuccess = '✅ Login successful';
@@ -31,30 +32,34 @@ class AppStrings {
   static const String registerFailed = 'Registration failed';
   static const String logoutConfirm = 'Are you sure you want to logout?';
   static const String deleteConfirm = 'Are you sure you want to delete';
-  static const String instrumentAddedSuccess = 'Instrument added successfully';
-  static const String instrumentUpdatedSuccess = 'Instrument updated successfully';
-  static const String instrumentDeletedSuccess = 'Instrument deleted successfully';
+  static const String noteAddedSuccess = 'Note added successfully';
+  static const String noteUpdatedSuccess = 'Note updated successfully';
+  static const String noteDeletedSuccess = 'Note deleted successfully';
+  static const String errorSavingNote = 'Error saving note';
+  static const String errorLoadingNotes = 'Error loading notes';
+  static const String errorDeletingNote = 'Error deleting note';
   
   // Labels
-  static const String instruments = 'Instruments';
-  static const String noInstrumentsYet = 'No instruments yet';
-  static const String tapToAdd = 'Tap + to add your first instrument';
-  static const String addInstrument = 'Add Instrument';
-  static const String editInstrument = 'Edit Instrument';
-  static const String instrumentName = 'Instrument Name';
-  static const String description = 'Description (Optional)';
+  static const String notes = 'Notes';
+  static const String noNotesYet = 'No notes yet';
+  static const String tapToAddNote = 'Tap + to add your first note';
+  static const String addNote = 'Add Note';
+  static const String editNote = 'Edit Note';
+  static const String noteTitle = 'Note Title';
+  static const String noteContent = 'Note Content';
   static const String loggedIn = 'Logged in';
   static const String confirmDelete = 'Confirm Delete';
   static const String cancel = 'Cancel';
   static const String delete = 'Delete';
   static const String edit = 'Edit';
   static const String update = 'Update';
-  static const String updateInstrument = 'Update Instrument';
+  static const String updateNote = 'Update Note';
+  static const String saveNote = 'Save Note';
   static const String noData = 'No data available';
   static const String home = 'Home';
   static const String welcome = 'Welcome';
   static const String welcomeBack = 'Welcome Back';
-  static const String manageInstruments = 'Manage Instruments';
-  static const String totalInstruments = 'Total Instruments';
+  static const String manageNotes = 'Manage Notes';
+  static const String totalNotes = 'Total Notes';
   static const String viewAll = 'View All';
 }
