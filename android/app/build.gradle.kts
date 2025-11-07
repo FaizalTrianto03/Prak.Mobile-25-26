@@ -7,7 +7,8 @@ plugins {
 
 android {
     namespace = "com.example.flutter_supabase"
-    compileSdk = flutter.compileSdkVersion
+    // Set compileSdk explicitly to fix lStar attribute error and support newer dependencies
+    compileSdk = 35
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
