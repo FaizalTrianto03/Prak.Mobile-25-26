@@ -27,7 +27,7 @@ class AppStrings {
   static const String pleaseEnterNoteContent = 'Please enter note content';
 
   // Messages
-  static const String loginSuccess = '✅ Login successful';
+  static const String loginSuccess = 'Login successful';
   static const String loginFailed = 'Login failed';
   static const String registerSuccess =
       'Registration successful! Please check your email to verify.';
@@ -65,7 +65,7 @@ class AppStrings {
   static const String imageAttachmentOptional =
       'Attach an optional image to your note';
   static const String todos = 'To-Do List';
-  static const String manageTodos = 'Manage your tasks locally';
+  static const String manageTodos = 'Manage your tasks locally using Hive';
   static const String noTodosYet = 'No tasks yet';
   static const String addTodo = 'Add Task';
   static const String editTodo = 'Edit Task';
@@ -79,7 +79,7 @@ class AppStrings {
   static const String home = 'Home';
   static const String welcome = 'Welcome';
   static const String welcomeBack = 'Welcome Back';
-  static const String manageNotes = 'Manage Notes';
+  static const String manageNotes = 'Manage Notes Realtime via Supabase';
   static const String totalNotes = 'Total Notes';
   static const String viewAll = 'View All';
 }

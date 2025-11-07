@@ -366,7 +366,7 @@ class _ImageAttachmentSection extends StatelessWidget {
           existingUrl,
           fit: BoxFit.cover,
           width: double.infinity,
-          errorBuilder: (_, __, ___) => _Placeholder(theme: theme),
+          errorBuilder: (_, _, _) => _Placeholder(theme: theme),
         );
       } else {
         preview = _Placeholder(theme: theme);

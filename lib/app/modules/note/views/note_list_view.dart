@@ -69,7 +69,7 @@ class NoteListView extends GetView<NoteController> {
                             width: 56,
                             height: 56,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => const Icon(
+                            errorBuilder: (_, _, _) => const Icon(
                               Icons.image_not_supported_outlined,
                             ),
                           ),

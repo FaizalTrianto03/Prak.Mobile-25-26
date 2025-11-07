@@ -58,7 +58,7 @@ class TodoListView extends GetView<TodoController> {
           child: ListView.separated(
             padding: const EdgeInsets.all(16),
             itemCount: controller.todos.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            separatorBuilder: (_, _) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
               final todo = controller.todos[index];
               final subtitleLines = <Widget>[];
