@@ -4,6 +4,8 @@ part 'todo_model.g.dart';
 
 @HiveType(typeId: 1)
 class TodoModel {
+  static const typeId = 1;
+
   @HiveField(0)
   final int id;
 

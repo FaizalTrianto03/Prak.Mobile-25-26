@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'app/core/theme/app_theme.dart';
 import 'app/core/values/app_strings.dart';
+import 'app/data/services/local_storage_service.dart';
 import 'app/data/services/supabase_service.dart';
 import 'app/data/providers/auth_provider.dart';
 import 'app/data/providers/note_provider.dart';
@@ -33,7 +34,8 @@ Future<void> main() async {
     Get.put(AuthProvider());
     Get.put(NoteProvider());
     Get.put(StorageService());
-    await Get.putAsync(() => TodoProvider().init());
+    await Get.putAsync(() => LocalStorageService().init());
+    Get.put(TodoProvider());
 
     if (kDebugMode) {
       debugPrint('✅ All services initialized successfully');

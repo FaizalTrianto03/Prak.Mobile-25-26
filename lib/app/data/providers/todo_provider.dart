@@ -1,32 +1,13 @@
 import 'package:get/get.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive/hive.dart';
 
 import '../models/todo_model.dart';
+import '../services/local_storage_service.dart';
 
 class TodoProvider extends GetxService {
-  static const String boxName = 'todo_box';
+  final LocalStorageService _localStorage = Get.find();
 
-  late Box<TodoModel> _box;
-
-  Future<TodoProvider> init() async {
-    try {
-      await Hive.initFlutter();
-    } on HiveError {
-      // Hive already initialized, ignore.
-    }
-
-    final adapter = TodoModelAdapter();
-    if (!Hive.isAdapterRegistered(adapter.typeId)) {
-      Hive.registerAdapter(adapter);
-    }
-
-    if (Hive.isBoxOpen(boxName)) {
-      _box = Hive.box<TodoModel>(boxName);
-    } else {
-      _box = await Hive.openBox<TodoModel>(boxName);
-    }
-    return this;
-  }
+  Box<TodoModel> get _box => _localStorage.todoBox;
 
   List<TodoModel> getTodos() {
     return _box.values.toList()
