@@ -4,6 +4,8 @@ class NoteModel {
   final String content;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final String? imagePath;
+  final String? imageUrl;
 
   NoteModel({
     this.id,
@@ -11,6 +13,8 @@ class NoteModel {
     required this.content,
     this.createdAt,
     this.updatedAt,
+    this.imagePath,
+    this.imageUrl,
   });
 
   factory NoteModel.fromJson(Map<String, dynamic> json) {
@@ -24,6 +28,7 @@ class NoteModel {
       updatedAt: json['updated_at'] != null
           ? DateTime.parse(json['updated_at'] as String)
           : null,
+      imagePath: json['image_path'] as String?,
     );
   }
 
@@ -34,6 +39,7 @@ class NoteModel {
       'content': content,
       if (createdAt != null) 'created_at': createdAt!.toIso8601String(),
       if (updatedAt != null) 'updated_at': updatedAt!.toIso8601String(),
+      if (imagePath != null) 'image_path': imagePath,
     };
   }
 
@@ -41,6 +47,7 @@ class NoteModel {
     return {
       'title': title,
       'content': content,
+      'image_path': imagePath,
     };
   }
 
@@ -50,6 +57,9 @@ class NoteModel {
     String? content,
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? imagePath,
+    String? imageUrl,
+    bool clearImage = false,
   }) {
     return NoteModel(
       id: id ?? this.id,
@@ -57,6 +67,8 @@ class NoteModel {
       content: content ?? this.content,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      imagePath: clearImage ? null : (imagePath ?? this.imagePath),
+      imageUrl: clearImage ? null : (imageUrl ?? this.imageUrl),
     );
   }
 }

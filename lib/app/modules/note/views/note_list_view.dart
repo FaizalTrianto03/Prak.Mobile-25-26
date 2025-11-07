@@ -56,10 +56,32 @@ class NoteListView extends GetView<NoteController> {
             itemCount: controller.notes.length,
             itemBuilder: (context, index) {
               final note = controller.notes[index];
+              final imageUrl = note.imageUrl;
               return Card(
                 margin: const EdgeInsets.only(bottom: 12),
                 child: ListTile(
                   contentPadding: const EdgeInsets.all(16),
+                  leading: imageUrl != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.network(
+                            imageUrl,
+                            width: 56,
+                            height: 56,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => const Icon(
+                              Icons.image_not_supported_outlined,
+                            ),
+                          ),
+                        )
+                      : CircleAvatar(
+                          backgroundColor:
+                              theme.colorScheme.primary.withValues(alpha: 0.1),
+                          child: Icon(
+                            Icons.note_alt_outlined,
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
                   title: Text(
                     note.title,
                     style: theme.textTheme.titleMedium?.copyWith(
@@ -81,7 +103,7 @@ class NoteListView extends GetView<NoteController> {
                       if (value == 'edit') {
                         controller.goToForm(note: note);
                       } else if (value == 'delete') {
-                        controller.deleteNote(note.id!, note.title);
+                        controller.deleteNote(note);
                       }
                     },
                     itemBuilder: (context) => [

@@ -55,6 +55,11 @@ class AppStrings {
   static const String update = 'Update';
   static const String updateNote = 'Update Note';
   static const String saveNote = 'Save Note';
+  static const String addImage = 'Add Image';
+  static const String changeImage = 'Change Image';
+  static const String removeImage = 'Remove Image';
+  static const String imagePreview = 'Image Preview';
+  static const String imageAttachmentOptional = 'Attach an optional image to your note';
   static const String noData = 'No data available';
   static const String home = 'Home';
   static const String welcome = 'Welcome';
