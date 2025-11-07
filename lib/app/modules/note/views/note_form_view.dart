@@ -261,6 +261,7 @@ class NoteFormView extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
         title: Text(
           controller.isEditing ? AppStrings.editNote : AppStrings.addNote,

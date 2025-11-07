@@ -29,10 +29,9 @@ class _RegisterViewState extends State<RegisterView> {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<AuthController>();
-    final theme = Theme.of(context);
     
     return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.register)),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -42,48 +41,76 @@ class _RegisterViewState extends State<RegisterView> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.person_add,
-                    size: 80,
-                    color: theme.colorScheme.primary,
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    AppStrings.createAccount,
-                    style: theme.textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
+                  // App Icon
+                  Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Theme.of(context).colorScheme.primary,
+                          Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.7),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.3),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
                     ),
+                    child: const Icon(
+                      Icons.person_add,
+                      size: 50,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Title
+                  Text(
+                    AppStrings.appName,
+                    style: Theme.of(context).textTheme.displayMedium,
                   ),
                   const SizedBox(height: 8),
                   Text(
                     AppStrings.registerToGetStarted,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(height: 48),
+                  // Email Field
                   Obx(
                     () => TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       decoration: const InputDecoration(
                         labelText: AppStrings.email,
+                        hintText: 'name@example.com',
                         prefixIcon: Icon(Icons.email_outlined),
-                        hintText: 'Enter your email',
                       ),
                       validator: controller.validateEmail,
                       enabled: !controller.isLoading.value,
                     ),
                   ),
                   const SizedBox(height: 16),
+
+                  // Password Field
                   Obx(
                     () => TextFormField(
                       controller: _passwordController,
                       obscureText: _obscurePassword.value,
                       decoration: InputDecoration(
                         labelText: AppStrings.password,
-                        prefixIcon: const Icon(Icons.lock_outlined),
-                        hintText: 'Enter your password',
+                        hintText: '••••••••',
+                        prefixIcon: const Icon(Icons.lock_outline),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscurePassword.value
@@ -98,14 +125,16 @@ class _RegisterViewState extends State<RegisterView> {
                     ),
                   ),
                   const SizedBox(height: 16),
+
+                  // Confirm Password Field
                   Obx(
                     () => TextFormField(
                       controller: _confirmPasswordController,
                       obscureText: _obscureConfirmPassword.value,
                       decoration: InputDecoration(
                         labelText: AppStrings.confirmPassword,
+                        hintText: '••••••••',
                         prefixIcon: const Icon(Icons.lock_outline),
-                        hintText: 'Confirm your password',
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscureConfirmPassword.value
@@ -119,10 +148,13 @@ class _RegisterViewState extends State<RegisterView> {
                       enabled: !controller.isLoading.value,
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 32),
+
+                  // Register Button
                   Obx(
                     () => SizedBox(
                       width: double.infinity,
+                      height: 56,
                       child: ElevatedButton(
                         onPressed: controller.isLoading.value
                             ? null
@@ -134,22 +166,38 @@ class _RegisterViewState extends State<RegisterView> {
                                   );
                                 }
                               },
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                        ),
                         child: controller.isLoading.value
                             ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child:
-                                    CircularProgressIndicator(strokeWidth: 2),
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
                               )
-                            : const Text(
-                                AppStrings.register,
-                                style: TextStyle(fontSize: 16),
-                              ),
+                            : const Text(AppStrings.register),
                       ),
                     ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Login Link
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        AppStrings.alreadyHaveAccount,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      TextButton(
+                        onPressed: controller.isLoading.value
+                            ? null
+                            : controller.goToLogin,
+                        child: const Text(AppStrings.login),
+                      ),
+                    ],
                   ),
                 ],
               ),

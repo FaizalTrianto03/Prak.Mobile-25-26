@@ -105,6 +105,7 @@ class TodoFormView extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
         title: Text(
           controller.isEditing ? AppStrings.editTodo : AppStrings.addTodo,

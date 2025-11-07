@@ -92,6 +92,11 @@ class AuthController extends GetxController {
     Get.toNamed(Routes.REGISTER);
   }
 
+  // Navigate to login
+  void goToLogin() {
+    Get.back();
+  }
+
   // Email validator
   String? validateEmail(String? value) {
     if (value == null || value.isEmpty) {
