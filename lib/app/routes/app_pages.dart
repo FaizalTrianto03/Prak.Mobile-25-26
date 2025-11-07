@@ -8,6 +8,9 @@ import '../modules/home/views/home_view.dart';
 import '../modules/note/bindings/note_binding.dart';
 import '../modules/note/views/note_list_view.dart';
 import '../modules/note/views/note_form_view.dart';
+import '../modules/todo/bindings/todo_binding.dart';
+import '../modules/todo/views/todo_list_view.dart';
+import '../modules/todo/views/todo_form_view.dart';
 
 part 'app_routes.dart';
 
@@ -41,6 +44,16 @@ class AppPages {
       name: _Paths.NOTE_FORM,
       page: () => NoteFormView(),
       binding: NoteBinding(),
+    ),
+    GetPage(
+      name: _Paths.TODO_LIST,
+      page: () => const TodoListView(),
+      binding: TodoBinding(),
+    ),
+    GetPage(
+      name: _Paths.TODO_FORM,
+      page: () => TodoFormView(),
+      binding: TodoBinding(),
     ),
   ];
 }

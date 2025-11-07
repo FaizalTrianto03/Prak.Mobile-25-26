@@ -10,6 +10,11 @@ class HomeController extends GetxController {
     Get.toNamed(Routes.NOTE_LIST);
   }
 
+  // Navigate to todo list
+  void goToTodos() {
+    Get.toNamed(Routes.TODO_LIST);
+  }
+
   // Get user email
   String? get userEmail => _authProvider.currentUser?.email;
 }
