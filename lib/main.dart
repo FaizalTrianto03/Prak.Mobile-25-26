@@ -9,6 +9,7 @@ import 'app/data/services/supabase_service.dart';
 import 'app/data/providers/auth_provider.dart';
 import 'app/data/providers/note_provider.dart';
 import 'app/data/providers/todo_provider.dart';
+import 'app/data/providers/theme_provider.dart';
 import 'app/data/services/storage_service.dart';
 import 'app/routes/app_pages.dart';
 
@@ -36,6 +37,8 @@ Future<void> main() async {
     Get.put(StorageService());
     await Get.putAsync(() => LocalStorageService().init());
     Get.put(TodoProvider());
+    final themeProvider = Get.put(ThemeProvider());
+    await themeProvider.init();
 
     if (kDebugMode) {
       debugPrint('✅ All services initialized successfully');
@@ -119,15 +122,36 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authProvider = Get.find<AuthProvider>();
+    final themeProvider = Get.find<ThemeProvider>();
 
-    return GetMaterialApp(
-      title: AppStrings.appName,
-      theme: AppTheme.lightTheme,
-      debugShowCheckedModeBanner: false,
-      initialRoute: authProvider.isAuthenticated ? Routes.HOME : Routes.LOGIN,
-      getPages: AppPages.routes,
-      defaultTransition: Transition.cupertino,
-      transitionDuration: const Duration(milliseconds: 300),
-    );
+    return Obx(() {
+      // Update system UI overlay style based on theme
+      SystemChrome.setSystemUIOverlayStyle(
+        SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: themeProvider.isDarkMode 
+              ? Brightness.light 
+              : Brightness.dark,
+          systemNavigationBarColor: themeProvider.isDarkMode 
+              ? const Color(0xFF000000) 
+              : Colors.white,
+          systemNavigationBarIconBrightness: themeProvider.isDarkMode 
+              ? Brightness.light 
+              : Brightness.dark,
+        ),
+      );
+
+      return GetMaterialApp(
+        title: AppStrings.appName,
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+        debugShowCheckedModeBanner: false,
+        initialRoute: authProvider.isAuthenticated ? Routes.HOME : Routes.LOGIN,
+        getPages: AppPages.routes,
+        defaultTransition: Transition.cupertino,
+        transitionDuration: const Duration(milliseconds: 300),
+      );
+    });
   }
 }

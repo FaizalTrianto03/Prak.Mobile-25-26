@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/values/app_strings.dart';
+import '../../../data/providers/theme_provider.dart';
 import '../../auth/controllers/auth_controller.dart';
 import '../controllers/home_controller.dart';
 
@@ -10,11 +11,22 @@ class HomeView extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final themeProvider = Get.find<ThemeProvider>();
     
     return Scaffold(
       appBar: AppBar(
         title: const Text(AppStrings.home),
         actions: [
+          // Theme Toggle Button
+          Obx(() => IconButton(
+            icon: Icon(
+              themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+            ),
+            onPressed: () {
+              themeProvider.toggleTheme();
+            },
+            tooltip: themeProvider.isDarkMode ? 'Light Mode' : 'Dark Mode',
+          )),
           PopupMenuButton<String>(
             icon: const Icon(Icons.account_circle),
             itemBuilder: (context) => [

@@ -49,4 +49,22 @@ class AppColors {
   
   // Shadow
   static const Color shadowColor = Color(0x1A000000);
+  
+  // Dark Theme Colors
+  static const Color darkBackground = Color(0xFF000000);
+  static const Color darkSurface = Color(0xFF1C1C1E);
+  static const Color darkSurfaceVariant = Color(0xFF2C2C2E);
+  
+  // Dark Theme Text Colors
+  static const Color darkTextPrimary = Color(0xFFFFFFFF);
+  static const Color darkTextSecondary = Color(0xFF8E8E93);
+  static const Color darkTextTertiary = Color(0xFF636366);
+  
+  // Dark Theme Separator
+  static const Color darkSeparator = Color(0xFF38383A);
+  static const Color darkSeparatorLight = Color(0xFF2C2C2E);
+  
+  // Dark Theme Card & Container
+  static const Color darkCardBackground = Color(0xFF1C1C1E);
+  static const Color darkCardBorder = Color(0xFF38383A);
 }
