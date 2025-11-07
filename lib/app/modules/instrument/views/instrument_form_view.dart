@@ -74,7 +74,7 @@ class InstrumentFormController extends GetxController {
         // ignore: unawaited_futures
         listController.loadInstruments();
       } catch (e) {
-        print('InstrumentController not found: $e');
+        debugPrint('InstrumentController not found: $e');
       }
 
       // Ensure any snackbars are closed, then return to the existing list page
@@ -119,7 +119,7 @@ class InstrumentFormController extends GetxController {
         // ignore: unawaited_futures
         listController.loadInstruments();
       } catch (e) {
-        print('InstrumentController not found: $e');
+        debugPrint('InstrumentController not found: $e');
       }
 
       // Ensure any snackbars are closed, then return to the existing list page

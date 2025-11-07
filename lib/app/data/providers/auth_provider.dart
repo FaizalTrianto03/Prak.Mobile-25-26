@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/supabase_service.dart';
@@ -18,10 +19,10 @@ class AuthProvider extends GetxService {
         email: email,
         password: password,
       );
-      print('Login successful');
+      debugPrint('Login successful');
       return response;
     } catch (e) {
-      print('Login error: $e');
+      debugPrint('Login error: $e');
       rethrow;
     }
   }
@@ -33,10 +34,10 @@ class AuthProvider extends GetxService {
         email: email,
         password: password,
       );
-      print('Registration successful');
+      debugPrint('Registration successful');
       return response;
     } catch (e) {
-      print('Registration error: $e');
+      debugPrint('Registration error: $e');
       rethrow;
     }
   }
@@ -45,9 +46,9 @@ class AuthProvider extends GetxService {
   Future<void> logout() async {
     try {
       await _supabaseService.client.auth.signOut();
-      print('User logged out');
+      debugPrint('User logged out');
     } catch (e) {
-      print('Logout error: $e');
+      debugPrint('Logout error: $e');
       rethrow;
     }
   }

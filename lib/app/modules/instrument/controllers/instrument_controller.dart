@@ -23,13 +23,13 @@ class InstrumentController extends GetxController {
     super.onReady();
     // Refresh data when controller is ready
     ever(instruments, (_) {
-      print('Instruments list updated: ${instruments.length} items');
+      debugPrint('Instruments list updated: ${instruments.length} items');
     });
   }
 
   // Called when page is resumed (navigated back from another page)
   void onResume() {
-    print('InstrumentListView resumed - refreshing data');
+    debugPrint('InstrumentListView resumed - refreshing data');
     loadInstruments();
   }
 
@@ -98,7 +98,7 @@ class InstrumentController extends GetxController {
       Routes.INSTRUMENT_FORM,
       arguments: instrument,
     );
-    
+
     // Refresh list if form returns true (data was saved)
     if (result == true) {
       loadInstruments();

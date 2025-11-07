@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import '../models/instrument_model.dart';
 import '../services/supabase_service.dart';
@@ -17,10 +18,10 @@ class InstrumentProvider extends GetxService {
           .map((json) => InstrumentModel.fromJson(json))
           .toList();
 
-      print('Successfully loaded ${instruments.length} instruments');
+      debugPrint('Successfully loaded ${instruments.length} instruments');
       return instruments;
     } catch (e) {
-      print('Error loading instruments: $e');
+      debugPrint('Error loading instruments: $e');
       rethrow;
     }
   }
@@ -31,9 +32,9 @@ class InstrumentProvider extends GetxService {
       await _supabaseService
           .from('instruments')
           .insert(instrument.toJsonForInsert());
-      print('Instrument added successfully: ${instrument.name}');
+      debugPrint('Instrument added successfully: ${instrument.name}');
     } catch (e) {
-      print('Error adding instrument: $e');
+      debugPrint('Error adding instrument: $e');
       rethrow;
     }
   }
@@ -45,10 +46,11 @@ class InstrumentProvider extends GetxService {
           .from('instruments')
           .update(instrument.toJsonForInsert())
           .eq('id', instrument.id!);
-      print(
-          'Instrument updated successfully (ID: ${instrument.id}): ${instrument.name}');
+      debugPrint(
+        'Instrument updated successfully (ID: ${instrument.id}): ${instrument.name}',
+      );
     } catch (e) {
-      print('Error updating instrument: $e');
+      debugPrint('Error updating instrument: $e');
       rethrow;
     }
   }
@@ -57,9 +59,9 @@ class InstrumentProvider extends GetxService {
   Future<void> deleteInstrument(int id) async {
     try {
       await _supabaseService.from('instruments').delete().eq('id', id);
-      print('Instrument deleted successfully (ID: $id)');
+      debugPrint('Instrument deleted successfully (ID: $id)');
     } catch (e) {
-      print('Error deleting instrument: $e');
+      debugPrint('Error deleting instrument: $e');
       rethrow;
     }
   }

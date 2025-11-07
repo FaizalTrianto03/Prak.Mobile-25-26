@@ -31,15 +31,15 @@ Future<void> main() async {
     Get.put(InstrumentProvider());
 
     if (kDebugMode) {
-      print('✅ All services initialized successfully');
+      debugPrint('✅ All services initialized successfully');
     }
 
     runApp(const MyApp());
   } catch (e, stackTrace) {
     if (kDebugMode) {
-      print('❌ Error during initialization:');
-      print(e);
-      print(stackTrace);
+      debugPrint('❌ Error during initialization:');
+      debugPrint(e.toString());
+      debugPrint(stackTrace.toString());
     }
 
     // Show error screen
