@@ -49,6 +49,7 @@ class NetworkLocationView extends StatelessWidget {
 
         // Error state
         if (controller.errorMessage.isNotEmpty) {
+          final errorAction = controller.getErrorAction();
           return Center(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
@@ -64,9 +65,9 @@ class NetworkLocationView extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton.icon(
-                    onPressed: controller.requestPermission,
-                    icon: const Icon(Icons.location_on),
-                    label: const Text('Request Permission'),
+                    onPressed: errorAction['action'] as VoidCallback?,
+                    icon: Icon(errorAction['icon'] as IconData),
+                    label: Text(errorAction['label'] as String),
                   ),
                 ],
               ),
@@ -143,17 +144,6 @@ class NetworkLocationView extends StatelessWidget {
           ],
         );
       }),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: controller.toggleTracking,
-        icon: Obx(
-          () => Icon(controller.isTracking ? Icons.stop : Icons.play_arrow),
-        ),
-        label: Obx(
-          () =>
-              Text(controller.isTracking ? 'Stop Tracking' : 'Start Tracking'),
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 

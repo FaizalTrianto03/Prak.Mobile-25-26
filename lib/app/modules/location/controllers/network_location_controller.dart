@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -513,5 +514,48 @@ class NetworkLocationController extends GetxController {
     } else {
       await startTracking();
     }
+  }
+
+  /// Get error action button info berdasarkan konteks error
+  Map<String, dynamic> getErrorAction() {
+    final error = _errorMessage.value.toLowerCase();
+    
+    // Permission permanently denied - buka app settings
+    if (error.contains('permanently denied') || 
+        error.contains('deniedforever')) {
+      return {
+        'label': 'Buka Pengaturan',
+        'icon': Icons.settings,
+        'action': openAppSettings,
+      };
+    }
+    
+    // Permission denied - request permission
+    if (error.contains('permission denied') || 
+        error.contains('permission')) {
+      return {
+        'label': 'Berikan Izin Lokasi',
+        'icon': Icons.location_on,
+        'action': requestPermission,
+      };
+    }
+    
+    // Network unavailable atau timeout
+    if (error.contains('timeout') || 
+        error.contains('network') ||
+        error.contains('unavailable')) {
+      return {
+        'label': 'Coba Lagi',
+        'icon': Icons.refresh,
+        'action': getCurrentPosition,
+      };
+    }
+    
+    // General error - retry
+    return {
+      'label': 'Coba Lagi',
+      'icon': Icons.refresh,
+      'action': getCurrentPosition,
+    };
   }
 }

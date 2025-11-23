@@ -4,4 +4,18 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    
+    <!-- Permissions untuk akses lokasi (sama dengan main manifest untuk konsistensi) -->
+    <!-- ACCESS_FINE_LOCATION: Untuk GPS dengan akurasi tinggi -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- ACCESS_COARSE_LOCATION: Untuk network provider (WiFi, cell towers) -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- ACCESS_BACKGROUND_LOCATION: Untuk akses lokasi di background (opsional) -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    
+    <!-- Permissions untuk network connection -->
+    <!-- ACCESS_NETWORK_STATE: Untuk cek status koneksi network -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- ACCESS_WIFI_STATE: Untuk cek status WiFi (berguna untuk network location) -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 </manifest>
