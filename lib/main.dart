@@ -33,13 +33,13 @@ Future<void> main() async {
     await themeProvider.init();
 
     if (kDebugMode) {
-      debugPrint('✅ All services initialized successfully');
+      debugPrint('All services initialized successfully');
     }
 
     runApp(const MyApp());
   } catch (e, stackTrace) {
     if (kDebugMode) {
-      debugPrint('❌ Error during initialization:');
+      debugPrint('Error during initialization:');
       debugPrint(e.toString());
       debugPrint(stackTrace.toString());
     }
