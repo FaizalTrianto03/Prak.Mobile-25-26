@@ -463,7 +463,7 @@ class LocationView extends StatelessWidget {
             // Tile Layer - OpenStreetMap tiles
             TileLayer(
               urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              userAgentPackageName: 'flutter_supabase',
+              userAgentPackageName: 'com.mobile.modul5',
               maxZoom: 19,
               // Retina mode untuk kualitas lebih baik
               retinaMode: MediaQuery.of(Get.context!).devicePixelRatio > 1.0,

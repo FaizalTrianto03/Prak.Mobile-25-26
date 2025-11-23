@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.flutter_supabase"
+    namespace = "com.mobile.modul5"
     // Set compileSdk explicitly to fix lStar attribute error and support newer dependencies
     compileSdk = 35
     ndkVersion = flutter.ndkVersion
@@ -22,7 +22,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.flutter_supabase"
+        applicationId = "com.mobile.modul5"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

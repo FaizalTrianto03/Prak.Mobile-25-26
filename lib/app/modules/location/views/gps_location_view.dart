@@ -419,7 +419,7 @@ class GpsLocationView extends StatelessWidget {
           children: [
             TileLayer(
               urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              userAgentPackageName: 'flutter_supabase',
+              userAgentPackageName: 'com.mobile.modul5',
               maxZoom: 19,
               retinaMode: MediaQuery.of(Get.context!).devicePixelRatio > 1.0,
             ),
