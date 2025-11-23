@@ -9,6 +9,7 @@ abstract class Routes {
   static const NOTE_FORM = _Paths.NOTE_FORM;
   static const TODO_LIST = _Paths.TODO_LIST;
   static const TODO_FORM = _Paths.TODO_FORM;
+  static const LOCATION = _Paths.LOCATION;
 }
 
 abstract class _Paths {
@@ -20,4 +21,5 @@ abstract class _Paths {
   static const NOTE_FORM = '/note-form';
   static const TODO_LIST = '/todos';
   static const TODO_FORM = '/todo-form';
+  static const LOCATION = '/location';
 }

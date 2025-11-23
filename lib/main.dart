@@ -16,7 +16,7 @@ import 'app/routes/app_pages.dart';
 Future<void> main() async {
   // Initialize Flutter bindings
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Set system UI overlay style
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -53,66 +53,66 @@ Future<void> main() async {
     }
 
     // Show error screen
-    runApp(MaterialApp(
-      home: Scaffold(
-        backgroundColor: Colors.red[50],
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.error_outline,
-                  size: 80,
-                  color: Colors.red,
-                ),
-                const SizedBox(height: 24),
-                const Text(
-                  'Initialization Error',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.red,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.red[200]!),
-                  ),
-                  child: Text(
-                    e.toString(),
-                    style: const TextStyle(fontSize: 14),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    // Restart app
-                    SystemChannels.platform.invokeMethod('SystemNavigator.pop');
-                  },
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Restart App'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
+    runApp(
+      MaterialApp(
+        home: Scaffold(
+          backgroundColor: Colors.red[50],
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 80, color: Colors.red),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Initialization Error',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red,
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.red[200]!),
+                    ),
+                    child: Text(
+                      e.toString(),
+                      style: const TextStyle(fontSize: 14),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      // Restart app
+                      SystemChannels.platform.invokeMethod(
+                        'SystemNavigator.pop',
+                      );
+                    },
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Restart App'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ));
+    );
   }
 }
 
@@ -129,14 +129,14 @@ class MyApp extends StatelessWidget {
       SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
-          statusBarIconBrightness: themeProvider.isDarkMode 
-              ? Brightness.light 
+          statusBarIconBrightness: themeProvider.isDarkMode
+              ? Brightness.light
               : Brightness.dark,
-          systemNavigationBarColor: themeProvider.isDarkMode 
-              ? const Color(0xFF000000) 
+          systemNavigationBarColor: themeProvider.isDarkMode
+              ? const Color(0xFF000000)
               : Colors.white,
-          systemNavigationBarIconBrightness: themeProvider.isDarkMode 
-              ? Brightness.light 
+          systemNavigationBarIconBrightness: themeProvider.isDarkMode
+              ? Brightness.light
               : Brightness.dark,
         ),
       );

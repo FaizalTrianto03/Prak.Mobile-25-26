@@ -15,6 +15,11 @@ class HomeController extends GetxController {
     Get.toNamed(Routes.TODO_LIST);
   }
 
+  // Navigate to location tracker
+  void goToLocation() {
+    Get.toNamed(Routes.LOCATION);
+  }
+
   // Get user email
   String? get userEmail => _authProvider.currentUser?.email;
 }
