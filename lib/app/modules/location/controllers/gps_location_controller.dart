@@ -118,9 +118,9 @@ class GpsLocationController extends GetxController {
         if (kDebugMode) {
           print('❌ [GPS CONTROLLER] GPS service is not enabled');
         }
-        _errorMessage.value = 'GPS tidak aktif. Silakan aktifkan GPS.';
-        _isLoading.value = false;
-        return;
+        throw Exception(
+          'Location services are disabled. Please enable GPS in Settings.',
+        );
       }
 
       _permissionStatus.value = await _locationService.checkPermission();
@@ -138,11 +138,38 @@ class GpsLocationController extends GetxController {
       await getCurrentPosition();
 
       _isLoading.value = false;
-    } catch (e) {
-      _errorMessage.value = 'Error: ${e.toString()}';
+    } on LocationServiceDisabledException catch (e) {
+      // Gunakan error message asli dari sistem
+      _errorMessage.value = e.toString();
       _isLoading.value = false;
       if (kDebugMode) {
-        print('❌ [GPS CONTROLLER] Location initialization error: $e');
+        print(
+          '❌ [GPS CONTROLLER] LocationServiceDisabledException: ${e.toString()}',
+        );
+      }
+    } on PermissionDeniedException catch (e) {
+      // Gunakan error message asli dari sistem
+      _errorMessage.value = e.toString();
+      _isLoading.value = false;
+      if (kDebugMode) {
+        print('❌ [GPS CONTROLLER] PermissionDeniedException: ${e.toString()}');
+      }
+    } on TimeoutException catch (e) {
+      // Gunakan error message asli dari sistem
+      _errorMessage.value = e.toString();
+      _isLoading.value = false;
+      if (kDebugMode) {
+        print('❌ [GPS CONTROLLER] TimeoutException: ${e.toString()}');
+      }
+    } catch (e, stackTrace) {
+      // Gunakan error message asli dari sistem
+      _errorMessage.value = e.toString();
+      _isLoading.value = false;
+      if (kDebugMode) {
+        print(
+          '❌ [GPS CONTROLLER] Location initialization error: ${e.toString()}',
+        );
+        print('❌ [GPS CONTROLLER] Stack trace: $stackTrace');
       }
     }
   }
@@ -155,10 +182,9 @@ class GpsLocationController extends GetxController {
       // Cek GPS service dulu
       bool isGpsEnabled = await _locationService.isLocationServiceEnabled();
       if (!isGpsEnabled) {
-        _errorMessage.value =
-            'GPS tidak aktif. Silakan aktifkan GPS di Settings.';
-        _isLoading.value = false;
-        return;
+        throw Exception(
+          'Location services are disabled. Please enable GPS in Settings.',
+        );
       }
 
       bool granted = await _locationService.requestPermission(
@@ -167,18 +193,14 @@ class GpsLocationController extends GetxController {
       _permissionStatus.value = await _locationService.checkPermission();
 
       if (!granted) {
-        // Cek apakah permanently denied
-        bool isPermanentlyDenied = await _locationService
-            .isPermissionPermanentlyDenied();
-
-        if (isPermanentlyDenied) {
-          _errorMessage.value =
-              'Permission lokasi ditolak secara permanen. '
-              'Silakan aktifkan di Settings > App Permissions > Location.';
+        // Throw exception dengan message dari permission status
+        final status = await _locationService.checkPermission();
+        if (status == LocationPermission.deniedForever) {
+          throw PermissionDeniedException(
+            'Location permission permanently denied',
+          );
         } else {
-          _errorMessage.value =
-              'Permission lokasi diperlukan untuk menggunakan GPS. '
-              'Silakan berikan izin saat diminta.';
+          throw PermissionDeniedException('Location permission denied');
         }
       } else {
         _errorMessage.value = '';
@@ -186,11 +208,29 @@ class GpsLocationController extends GetxController {
       }
 
       _isLoading.value = false;
-    } catch (e) {
-      _errorMessage.value = 'Error: ${e.toString()}';
+    } on LocationServiceDisabledException catch (e) {
+      // Gunakan error message asli dari sistem
+      _errorMessage.value = e.toString();
       _isLoading.value = false;
       if (kDebugMode) {
-        print('Request permission error: $e');
+        print(
+          '❌ [GPS CONTROLLER] LocationServiceDisabledException: ${e.toString()}',
+        );
+      }
+    } on PermissionDeniedException catch (e) {
+      // Gunakan error message asli dari sistem
+      _errorMessage.value = e.toString();
+      _isLoading.value = false;
+      if (kDebugMode) {
+        print('❌ [GPS CONTROLLER] PermissionDeniedException: ${e.toString()}');
+      }
+    } catch (e, stackTrace) {
+      // Gunakan error message asli dari sistem
+      _errorMessage.value = e.toString();
+      _isLoading.value = false;
+      if (kDebugMode) {
+        print('❌ [GPS CONTROLLER] Request permission error: ${e.toString()}');
+        print('❌ [GPS CONTROLLER] Stack trace: $stackTrace');
       }
     }
   }
@@ -224,10 +264,9 @@ class GpsLocationController extends GetxController {
         if (kDebugMode) {
           print('❌ [GPS CONTROLLER] GPS service is not enabled');
         }
-        _errorMessage.value =
-            'GPS tidak aktif. Silakan aktifkan GPS di Settings.';
-        _isLoading.value = false;
-        return;
+        throw Exception(
+          'Location services are disabled. Please enable GPS in Settings.',
+        );
       }
       if (kDebugMode) {
         print('✅ [GPS CONTROLLER] GPS service is enabled');
@@ -239,10 +278,9 @@ class GpsLocationController extends GetxController {
         if (kDebugMode) {
           print('❌ [GPS CONTROLLER] Permission not granted');
         }
-        _errorMessage.value =
-            'Permission lokasi diperlukan. Silakan berikan izin.';
-        _isLoading.value = false;
-        return;
+        throw PermissionDeniedException(
+          'Location permission denied. Please grant location permission.',
+        );
       }
 
       if (kDebugMode) {
@@ -285,25 +323,40 @@ class GpsLocationController extends GetxController {
         _updateMapPosition(position);
         _errorMessage.value = '';
       } else {
-        // Cek permission state untuk memberikan error message yang lebih spesifik
-        _permissionStatus.value = await _locationService.checkPermission();
-        if (_permissionStatus.value == LocationPermission.deniedForever) {
-          _errorMessage.value =
-              'Permission lokasi ditolak secara permanen. '
-              'Silakan aktifkan di Settings.';
-        } else {
-          _errorMessage.value =
-              'Tidak dapat mendapatkan posisi GPS. '
-              'Pastikan GPS aktif dan permission lokasi sudah diberikan.';
-        }
+        throw Exception('Failed to get current position: Position is null');
       }
 
       _isLoading.value = false;
-    } catch (e) {
-      _errorMessage.value = 'Error: ${e.toString()}';
+    } on PermissionDeniedException catch (e) {
+      // Gunakan error message asli dari sistem
+      _errorMessage.value = e.toString();
       _isLoading.value = false;
       if (kDebugMode) {
-        print('Get current position error: $e');
+        print('❌ [GPS CONTROLLER] PermissionDeniedException: ${e.toString()}');
+      }
+    } on LocationServiceDisabledException catch (e) {
+      // Gunakan error message asli dari sistem
+      _errorMessage.value = e.toString();
+      _isLoading.value = false;
+      if (kDebugMode) {
+        print(
+          '❌ [GPS CONTROLLER] LocationServiceDisabledException: ${e.toString()}',
+        );
+      }
+    } on TimeoutException catch (e) {
+      // Gunakan error message asli dari sistem
+      _errorMessage.value = e.toString();
+      _isLoading.value = false;
+      if (kDebugMode) {
+        print('❌ [GPS CONTROLLER] TimeoutException: ${e.toString()}');
+      }
+    } catch (e, stackTrace) {
+      // Gunakan error message asli dari sistem
+      _errorMessage.value = e.toString();
+      _isLoading.value = false;
+      if (kDebugMode) {
+        print('❌ [GPS CONTROLLER] Get current position error: ${e.toString()}');
+        print('❌ [GPS CONTROLLER] Stack trace: $stackTrace');
       }
     }
   }
@@ -341,9 +394,9 @@ class GpsLocationController extends GetxController {
         if (kDebugMode) {
           print('❌ [GPS CONTROLLER] GPS service is not enabled');
         }
-        _errorMessage.value =
-            'GPS tidak aktif. Silakan aktifkan GPS di Settings untuk memulai tracking.';
-        return;
+        throw Exception(
+          'Location services are disabled. Please enable GPS in Settings to start tracking.',
+        );
       }
       if (kDebugMode) {
         print('✅ [GPS CONTROLLER] GPS service is enabled');
@@ -364,20 +417,15 @@ class GpsLocationController extends GetxController {
       }
 
       if (!hasPermission) {
-        _permissionStatus.value = await _locationService.checkPermission();
-        bool isPermanentlyDenied = await _locationService
-            .isPermissionPermanentlyDenied();
-
-        if (isPermanentlyDenied) {
-          _errorMessage.value =
-              'Permission lokasi diperlukan untuk tracking. '
-              'Silakan aktifkan di Settings > App Permissions > Location.';
+        // Throw exception dengan message dari permission status
+        final status = await _locationService.checkPermission();
+        if (status == LocationPermission.deniedForever) {
+          throw PermissionDeniedException(
+            'Location permission permanently denied',
+          );
         } else {
-          _errorMessage.value =
-              'Permission lokasi diperlukan untuk tracking. '
-              'Silakan berikan izin saat diminta.';
+          throw PermissionDeniedException('Location permission denied');
         }
-        return;
       }
 
       _isTracking.value = true;
@@ -400,21 +448,50 @@ class GpsLocationController extends GetxController {
             _updateMapPosition(position);
           },
           onError: (error) {
-            _errorMessage.value = 'Error tracking: ${error.toString()}';
+            // Gunakan error message asli dari sistem
+            _errorMessage.value = error.toString();
             if (kDebugMode) {
-              print('Position stream error: $error');
+              print(
+                '❌ [GPS CONTROLLER] Position stream error: ${error.toString()}',
+              );
             }
           },
         );
       } else {
-        _errorMessage.value = 'Tidak dapat memulai tracking.';
-        _isTracking.value = false;
+        throw Exception(
+          'Failed to start position stream: Position stream is null',
+        );
       }
-    } catch (e) {
-      _errorMessage.value = 'Error: ${e.toString()}';
+    } on LocationServiceDisabledException catch (e) {
+      // Gunakan error message asli dari sistem
+      _errorMessage.value = e.toString();
       _isTracking.value = false;
       if (kDebugMode) {
-        print('Start tracking error: $e');
+        print(
+          '❌ [GPS CONTROLLER] LocationServiceDisabledException: ${e.toString()}',
+        );
+      }
+    } on PermissionDeniedException catch (e) {
+      // Gunakan error message asli dari sistem
+      _errorMessage.value = e.toString();
+      _isTracking.value = false;
+      if (kDebugMode) {
+        print('❌ [GPS CONTROLLER] PermissionDeniedException: ${e.toString()}');
+      }
+    } on TimeoutException catch (e) {
+      // Gunakan error message asli dari sistem
+      _errorMessage.value = e.toString();
+      _isTracking.value = false;
+      if (kDebugMode) {
+        print('❌ [GPS CONTROLLER] TimeoutException: ${e.toString()}');
+      }
+    } catch (e, stackTrace) {
+      // Gunakan error message asli dari sistem
+      _errorMessage.value = e.toString();
+      _isTracking.value = false;
+      if (kDebugMode) {
+        print('❌ [GPS CONTROLLER] Start tracking error: ${e.toString()}');
+        print('❌ [GPS CONTROLLER] Stack trace: $stackTrace');
       }
     }
   }

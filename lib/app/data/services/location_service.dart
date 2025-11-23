@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart'
@@ -292,7 +293,15 @@ class LocationService {
         if (kDebugMode) {
           print('❌ [LOCATION SERVICE] Location permission not granted');
         }
-        throw Exception('Location permission not granted');
+        // Throw exception dengan message dari permission status
+        final status = await checkPermission();
+        if (status == LocationPermission.deniedForever) {
+          throw PermissionDeniedException(
+            'Location permission permanently denied',
+          );
+        } else {
+          throw PermissionDeniedException('Location permission denied');
+        }
       }
       if (kDebugMode) {
         print('✅ [LOCATION SERVICE] Permission granted');
@@ -410,21 +419,31 @@ class LocationService {
       }
 
       return position;
-    } on PermissionDeniedException {
+    } on PermissionDeniedException catch (e) {
       if (kDebugMode) {
-        print('Permission denied exception');
+        print(
+          '❌ [LOCATION SERVICE] PermissionDeniedException: ${e.toString()}',
+        );
       }
-      return null;
-    } on LocationServiceDisabledException {
+      rethrow; // Throw kembali agar controller bisa handle dengan message asli
+    } on LocationServiceDisabledException catch (e) {
       if (kDebugMode) {
-        print('Location service disabled exception');
+        print(
+          '❌ [LOCATION SERVICE] LocationServiceDisabledException: ${e.toString()}',
+        );
       }
-      return null;
-    } catch (e) {
+      rethrow; // Throw kembali agar controller bisa handle dengan message asli
+    } on TimeoutException catch (e) {
       if (kDebugMode) {
-        print('Error getting current position: $e');
+        print('❌ [LOCATION SERVICE] TimeoutException: ${e.toString()}');
       }
-      return null;
+      rethrow; // Throw kembali agar controller bisa handle dengan message asli
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        print('❌ [LOCATION SERVICE] Error getting current position: $e');
+        print('❌ [LOCATION SERVICE] Stack trace: $stackTrace');
+      }
+      rethrow; // Throw kembali agar controller bisa handle dengan message asli
     }
   }
 

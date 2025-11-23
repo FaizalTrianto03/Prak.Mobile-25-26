@@ -128,11 +128,15 @@ class NetworkLocationController extends GetxController {
       await getCurrentPosition();
 
       _isLoading.value = false;
-    } catch (e) {
-      _errorMessage.value = 'Error: ${e.toString()}';
+    } catch (e, stackTrace) {
+      // Gunakan error message asli dari sistem
+      _errorMessage.value = e.toString();
       _isLoading.value = false;
       if (kDebugMode) {
-        print('❌ [NETWORK CONTROLLER] Location initialization error: $e');
+        print(
+          '❌ [NETWORK CONTROLLER] Location initialization error: ${e.toString()}',
+        );
+        print('❌ [NETWORK CONTROLLER] Stack trace: $stackTrace');
       }
     }
   }
@@ -148,18 +152,14 @@ class NetworkLocationController extends GetxController {
       _permissionStatus.value = await _locationService.checkPermission();
 
       if (!granted) {
-        // Cek apakah permanently denied
-        bool isPermanentlyDenied = await _locationService
-            .isPermissionPermanentlyDenied();
-
-        if (isPermanentlyDenied) {
-          _errorMessage.value =
-              'Permission lokasi ditolak secara permanen. '
-              'Silakan aktifkan di Settings > App Permissions > Location.';
+        // Throw exception dengan message dari permission status
+        final status = await _locationService.checkPermission();
+        if (status == LocationPermission.deniedForever) {
+          throw PermissionDeniedException(
+            'Location permission permanently denied',
+          );
         } else {
-          _errorMessage.value =
-              'Permission lokasi diperlukan untuk menggunakan Network Location. '
-              'Silakan berikan izin saat diminta.';
+          throw PermissionDeniedException('Location permission denied');
         }
       } else {
         _errorMessage.value = '';
@@ -167,11 +167,15 @@ class NetworkLocationController extends GetxController {
       }
 
       _isLoading.value = false;
-    } catch (e) {
-      _errorMessage.value = 'Error: ${e.toString()}';
+    } catch (e, stackTrace) {
+      // Gunakan error message asli dari sistem
+      _errorMessage.value = e.toString();
       _isLoading.value = false;
       if (kDebugMode) {
-        print('Request permission error: $e');
+        print(
+          '❌ [NETWORK CONTROLLER] Request permission error: ${e.toString()}',
+        );
+        print('❌ [NETWORK CONTROLLER] Stack trace: $stackTrace');
       }
     }
   }
@@ -202,10 +206,7 @@ class NetworkLocationController extends GetxController {
         if (kDebugMode) {
           print('❌ [NETWORK CONTROLLER] Permission not granted');
         }
-        _errorMessage.value =
-            'Permission lokasi diperlukan. Silakan berikan izin.';
-        _isLoading.value = false;
-        return;
+        // Akan di-handle oleh requestPermission yang akan throw exception
       }
 
       if (kDebugMode) {
@@ -248,25 +249,44 @@ class NetworkLocationController extends GetxController {
         _updateMapPosition(position);
         _errorMessage.value = '';
       } else {
-        // Cek permission state untuk memberikan error message yang lebih spesifik
-        _permissionStatus.value = await _locationService.checkPermission();
-        if (_permissionStatus.value == LocationPermission.deniedForever) {
-          _errorMessage.value =
-              'Permission lokasi ditolak secara permanen. '
-              'Silakan aktifkan di Settings.';
-        } else {
-          _errorMessage.value =
-              'Tidak dapat mendapatkan posisi. '
-              'Pastikan koneksi internet aktif dan permission lokasi sudah diberikan.';
-        }
+        // Jika null, berarti ada error yang tidak di-throw
+        // Throw exception agar error message bisa ditangkap
+        throw Exception('Failed to get current position: Position is null');
       }
 
       _isLoading.value = false;
-    } catch (e) {
-      _errorMessage.value = 'Error: ${e.toString()}';
+    } on PermissionDeniedException catch (e) {
+      // Gunakan error message asli dari sistem
+      _errorMessage.value = e.toString();
       _isLoading.value = false;
       if (kDebugMode) {
-        print('Get current position error: $e');
+        print(
+          '❌ [NETWORK CONTROLLER] PermissionDeniedException: ${e.toString()}',
+        );
+      }
+    } on LocationServiceDisabledException catch (e) {
+      // Gunakan error message asli dari sistem
+      _errorMessage.value = e.toString();
+      _isLoading.value = false;
+      if (kDebugMode) {
+        print(
+          '❌ [NETWORK CONTROLLER] LocationServiceDisabledException: ${e.toString()}',
+        );
+      }
+    } on TimeoutException catch (e) {
+      // Gunakan error message asli dari sistem
+      _errorMessage.value = e.toString();
+      _isLoading.value = false;
+      if (kDebugMode) {
+        print('❌ [NETWORK CONTROLLER] TimeoutException: ${e.toString()}');
+      }
+    } catch (e, stackTrace) {
+      // Gunakan error message asli dari sistem
+      _errorMessage.value = e.toString();
+      _isLoading.value = false;
+      if (kDebugMode) {
+        print('❌ [NETWORK CONTROLLER] Error: ${e.toString()}');
+        print('❌ [NETWORK CONTROLLER] Stack trace: $stackTrace');
       }
     }
   }
@@ -310,20 +330,15 @@ class NetworkLocationController extends GetxController {
       }
 
       if (!hasPermission) {
-        _permissionStatus.value = await _locationService.checkPermission();
-        bool isPermanentlyDenied = await _locationService
-            .isPermissionPermanentlyDenied();
-
-        if (isPermanentlyDenied) {
-          _errorMessage.value =
-              'Permission lokasi diperlukan untuk tracking. '
-              'Silakan aktifkan di Settings > App Permissions > Location.';
+        // Throw exception dengan message dari permission status
+        final status = await _locationService.checkPermission();
+        if (status == LocationPermission.deniedForever) {
+          throw PermissionDeniedException(
+            'Location permission permanently denied',
+          );
         } else {
-          _errorMessage.value =
-              'Permission lokasi diperlukan untuk tracking. '
-              'Silakan berikan izin saat diminta.';
+          throw PermissionDeniedException('Location permission denied');
         }
-        return;
       }
 
       _isTracking.value = true;
@@ -348,21 +363,52 @@ class NetworkLocationController extends GetxController {
             _updateMapPosition(position);
           },
           onError: (error) {
-            _errorMessage.value = 'Error tracking: ${error.toString()}';
+            // Gunakan error message asli dari sistem
+            _errorMessage.value = error.toString();
             if (kDebugMode) {
-              print('Position stream error: $error');
+              print(
+                '❌ [NETWORK CONTROLLER] Position stream error: ${error.toString()}',
+              );
             }
           },
         );
       } else {
-        _errorMessage.value = 'Tidak dapat memulai tracking.';
-        _isTracking.value = false;
+        throw Exception(
+          'Failed to start position stream: Position stream is null',
+        );
       }
-    } catch (e) {
-      _errorMessage.value = 'Error: ${e.toString()}';
+    } on PermissionDeniedException catch (e) {
+      // Gunakan error message asli dari sistem
+      _errorMessage.value = e.toString();
       _isTracking.value = false;
       if (kDebugMode) {
-        print('Start tracking error: $e');
+        print(
+          '❌ [NETWORK CONTROLLER] PermissionDeniedException: ${e.toString()}',
+        );
+      }
+    } on LocationServiceDisabledException catch (e) {
+      // Gunakan error message asli dari sistem
+      _errorMessage.value = e.toString();
+      _isTracking.value = false;
+      if (kDebugMode) {
+        print(
+          '❌ [NETWORK CONTROLLER] LocationServiceDisabledException: ${e.toString()}',
+        );
+      }
+    } on TimeoutException catch (e) {
+      // Gunakan error message asli dari sistem
+      _errorMessage.value = e.toString();
+      _isTracking.value = false;
+      if (kDebugMode) {
+        print('❌ [NETWORK CONTROLLER] TimeoutException: ${e.toString()}');
+      }
+    } catch (e, stackTrace) {
+      // Gunakan error message asli dari sistem
+      _errorMessage.value = e.toString();
+      _isTracking.value = false;
+      if (kDebugMode) {
+        print('❌ [NETWORK CONTROLLER] Start tracking error: ${e.toString()}');
+        print('❌ [NETWORK CONTROLLER] Stack trace: $stackTrace');
       }
     }
   }
