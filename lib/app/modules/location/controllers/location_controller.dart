@@ -21,7 +21,8 @@ class LocationController extends GetxController {
       LocationPermission.denied.obs;
 
   // FlutterMap Controller
-  final MapController _mapController = MapController();
+  MapController? _mapController;
+  bool _isDisposed = false;
 
   // Map center position dan zoom
   final Rx<LatLng> _mapCenter = Rx<LatLng>(
@@ -38,7 +39,23 @@ class LocationController extends GetxController {
   String get errorMessage => _errorMessage.value;
   bool get isTracking => _isTracking.value;
   LocationPermission get permissionStatus => _permissionStatus.value;
-  MapController get mapController => _mapController;
+  MapController get mapController {
+    // Jika null atau disposed, buat baru
+    if (_mapController == null || _isDisposed) {
+      try {
+        _mapController?.dispose();
+      } catch (e) {
+        // Ignore error saat dispose
+      }
+      _mapController = MapController();
+      _isDisposed = false;
+    }
+    return _mapController!;
+  }
+  
+  /// Check if map controller is ready and not disposed
+  bool get isMapControllerReady => 
+      _mapController != null && !_isDisposed;
   LatLng get mapCenter => _mapCenter.value;
   double get mapZoom => _mapZoom.value;
 
@@ -53,15 +70,41 @@ class LocationController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    // Reset state dan initialize map controller
+    _isDisposed = false;
+    try {
+      _mapController?.dispose();
+    } catch (e) {
+      // Ignore error
+    }
+    _mapController = MapController();
     _initializeLocation();
   }
 
   @override
   void onClose() {
+    _isDisposed = true;
     _stopTracking();
     _positionSubscription?.cancel();
-    _mapController.dispose();
+    _positionSubscription = null;
+    
+    // Dispose map controller dengan error handling
+    try {
+      _mapController?.dispose();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error disposing map controller: $e');
+      }
+    } finally {
+      _mapController = null;
+    }
+    
     super.onClose();
+  }
+  
+  /// Safe method to check and use map controller
+  bool _canUseMapController() {
+    return !_isDisposed && _mapController != null;
   }
 
   /// Initialize location service
@@ -237,14 +280,16 @@ class LocationController extends GetxController {
 
   /// Update map position (center dan zoom)
   void _updateMapPosition(Position position) {
+    if (_isDisposed || !_canUseMapController()) return;
+    
     final newCenter = LatLng(position.latitude, position.longitude);
     _mapCenter.value = newCenter;
 
     // Animate map ke posisi baru (hanya jika map sudah ready)
     try {
-      _mapController.move(newCenter, _mapZoom.value);
+      _mapController?.move(newCenter, _mapZoom.value);
     } catch (e) {
-      // Map belum ready, skip update
+      // Map belum ready atau sudah disposed, skip update
       if (kDebugMode) {
         print('Map controller not ready yet: $e');
       }
@@ -253,16 +298,19 @@ class LocationController extends GetxController {
 
   /// Update map center (untuk onMapMove callback)
   void updateMapCenter(LatLng center, double zoom) {
+    if (_isDisposed) return;
     _mapCenter.value = center;
     _mapZoom.value = zoom;
   }
 
   /// Set zoom level
   void setZoom(double zoom) {
+    if (_isDisposed || !_canUseMapController()) return;
+    
     _mapZoom.value = zoom;
     if (_currentPosition.value != null) {
       try {
-        _mapController.move(
+        _mapController?.move(
           LatLng(
             _currentPosition.value!.latitude,
             _currentPosition.value!.longitude,
@@ -291,11 +339,13 @@ class LocationController extends GetxController {
 
   /// Move map ke current position
   void moveToCurrentPosition() {
+    if (_isDisposed || !_canUseMapController()) return;
+    
     if (_currentPosition.value != null) {
       try {
         final position = _currentPosition.value!;
         final center = LatLng(position.latitude, position.longitude);
-        _mapController.move(center, _mapZoom.value);
+        _mapController?.move(center, _mapZoom.value);
         _mapCenter.value = center;
       } catch (e) {
         if (kDebugMode) {
@@ -308,6 +358,17 @@ class LocationController extends GetxController {
   /// Refresh posisi
   Future<void> refreshPosition() async {
     await getCurrentPosition();
+  }
+  
+  /// Reset map controller (untuk retry setelah error)
+  void resetMapController() {
+    try {
+      _mapController?.dispose();
+    } catch (e) {
+      // Ignore error
+    }
+    _mapController = MapController();
+    _isDisposed = false;
   }
 
   /// Toggle tracking

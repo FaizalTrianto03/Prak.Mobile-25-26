@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -74,63 +75,76 @@ class LocationView extends StatelessWidget {
         }
 
         // Main content
-        return Column(
+        return Stack(
           children: [
-            // Coordinate Display Section
-            _buildCoordinateDisplay(controller),
+            Column(
+              children: [
+                // Coordinate Display Section
+                _buildCoordinateDisplay(controller),
 
-            // OpenStreetMap Section
-            Expanded(child: _buildOpenStreetMap(controller)),
+                // OpenStreetMap Section
+                Expanded(child: _buildOpenStreetMap(controller)),
+              ],
+            ),
+            // Zoom controls - positioned di kanan layar
+            Positioned(
+              right: 16,
+              bottom: 16,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FloatingActionButton(
+                    heroTag: 'zoom_in',
+                    mini: true,
+                    onPressed: () {
+                      try {
+                        controller.zoomIn();
+                      } catch (e) {
+                        if (kDebugMode) {
+                          print('Error zoom in: $e');
+                        }
+                      }
+                    },
+                    child: const Icon(Icons.add),
+                  ),
+                  const SizedBox(height: 8),
+                  FloatingActionButton(
+                    heroTag: 'zoom_out',
+                    mini: true,
+                    onPressed: () {
+                      try {
+                        controller.zoomOut();
+                      } catch (e) {
+                        if (kDebugMode) {
+                          print('Error zoom out: $e');
+                        }
+                      }
+                    },
+                    child: const Icon(Icons.remove),
+                  ),
+                  const SizedBox(height: 8),
+                  FloatingActionButton(
+                    heroTag: 'center',
+                    mini: true,
+                    onPressed: () {
+                      try {
+                        controller.moveToCurrentPosition();
+                      } catch (e) {
+                        if (kDebugMode) {
+                          print('Error move to position: $e');
+                        }
+                      }
+                    },
+                    child: const Icon(Icons.my_location),
+                  ),
+                ],
+              ),
+            ),
           ],
         );
       }),
-      floatingActionButton: Obx(
-        () => Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Zoom controls
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                FloatingActionButton(
-                  heroTag: 'zoom_in',
-                  mini: true,
-                  onPressed: controller.zoomIn,
-                  child: const Icon(Icons.add),
-                ),
-                const SizedBox(height: 8),
-                FloatingActionButton(
-                  heroTag: 'zoom_out',
-                  mini: true,
-                  onPressed: controller.zoomOut,
-                  child: const Icon(Icons.remove),
-                ),
-                const SizedBox(height: 8),
-                FloatingActionButton(
-                  heroTag: 'center',
-                  mini: true,
-                  onPressed: controller.moveToCurrentPosition,
-                  child: const Icon(Icons.my_location),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            // Tracking button
-            FloatingActionButton.extended(
-              heroTag: 'tracking',
-              onPressed: controller.toggleTracking,
-              icon: Icon(controller.isTracking ? Icons.stop : Icons.play_arrow),
-              label: Text(
-                controller.isTracking ? 'Stop Tracking' : 'Start Tracking',
-              ),
-              backgroundColor: controller.isTracking
-                  ? Colors.red
-                  : Colors.green,
-            ),
-          ],
-        ),
-      ),
+      floatingActionButton: null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
@@ -373,74 +387,111 @@ class LocationView extends StatelessWidget {
       );
     }
 
-    return Obx(
-      () => FlutterMap(
-        mapController: controller.mapController,
-        options: MapOptions(
-          initialCenter: controller.mapCenter,
-          initialZoom: controller.mapZoom,
-          minZoom: 3.0,
-          maxZoom: 18.0,
-          onMapEvent: (MapEvent event) {
-            if (event is MapEventMove) {
-              final camera = controller.mapController.camera;
-              controller.updateMapCenter(camera.center, camera.zoom);
-            }
-          },
-        ),
-        children: [
-          // Tile Layer - OpenStreetMap tiles
-          TileLayer(
-            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-            userAgentPackageName: 'flutter_supabase',
-            maxZoom: 19,
-            // Retina mode untuk kualitas lebih baik
-            retinaMode: MediaQuery.of(Get.context!).devicePixelRatio > 1.0,
+    return Obx(() {
+      // Render map langsung, handle error dengan try-catch
+      try {
+        return FlutterMap(
+          mapController: controller.mapController,
+          options: MapOptions(
+            initialCenter: controller.mapCenter,
+            initialZoom: controller.mapZoom,
+            minZoom: 3.0,
+            maxZoom: 18.0,
+            onMapEvent: (MapEvent event) {
+              if (event is MapEventMove) {
+                try {
+                  if (controller.isMapControllerReady) {
+                    final camera = controller.mapController.camera;
+                    controller.updateMapCenter(camera.center, camera.zoom);
+                  }
+                } catch (e) {
+                  // Ignore error if controller is disposed
+                  if (kDebugMode) {
+                    print('Error updating map center: $e');
+                  }
+                }
+              }
+            },
           ),
-
-          // Marker Layer - Menampilkan marker lokasi pengguna
-          if (controller.currentPosition != null)
-            MarkerLayer(
-              markers: [
-                Marker(
-                  point: LatLng(controller.latitude!, controller.longitude!),
-                  width: 40,
-                  height: 40,
-                  alignment: Alignment.center,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 3),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.3),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.location_on,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ),
-                ),
-              ],
+          children: [
+            // Tile Layer - OpenStreetMap tiles
+            TileLayer(
+              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              userAgentPackageName: 'flutter_supabase',
+              maxZoom: 19,
+              // Retina mode untuk kualitas lebih baik
+              retinaMode: MediaQuery.of(Get.context!).devicePixelRatio > 1.0,
             ),
 
-          // Attribution
-          RichAttributionWidget(
-            alignment: AttributionAlignment.bottomLeft,
-            popupBackgroundColor: Colors.white,
-            attributions: [
-              TextSourceAttribution('OpenStreetMap', onTap: () => {}),
-              TextSourceAttribution('Contributors', onTap: () => {}),
+            // Marker Layer - Menampilkan marker lokasi pengguna
+            if (controller.currentPosition != null)
+              MarkerLayer(
+                markers: [
+                  Marker(
+                    point: LatLng(controller.latitude!, controller.longitude!),
+                    width: 40,
+                    height: 40,
+                    alignment: Alignment.center,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 3),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.3),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.location_on,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+            // Attribution
+            RichAttributionWidget(
+              alignment: AttributionAlignment.bottomLeft,
+              popupBackgroundColor: Colors.white,
+              attributions: [
+                TextSourceAttribution('OpenStreetMap', onTap: () => {}),
+                TextSourceAttribution('Contributors', onTap: () => {}),
+              ],
+            ),
+          ],
+        );
+      } catch (e) {
+        // Jika error, tampilkan error message dan tombol retry
+        if (kDebugMode) {
+          print('Error rendering map: $e');
+        }
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+              const SizedBox(height: 16),
+              const Text('Error loading map', style: TextStyle(fontSize: 16)),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: () {
+                  // Reset map controller dan refresh
+                  controller.resetMapController();
+                  controller.refreshPosition();
+                },
+                icon: const Icon(Icons.refresh),
+                label: const Text('Retry'),
+              ),
             ],
           ),
-        ],
-      ),
-    );
+        );
+      }
+    });
   }
 }
