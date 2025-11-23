@@ -265,6 +265,7 @@ class NoteFormView extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           controller.isEditing ? AppStrings.editNote : AppStrings.addNote,
+          style: const TextStyle(fontSize: 18),
         ),
       ),
       body: SingleChildScrollView(

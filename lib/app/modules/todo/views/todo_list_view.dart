@@ -15,7 +15,10 @@ class TodoListView extends GetView<TodoController> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.todos),
+        title: const Text(
+          AppStrings.todos,
+          style: TextStyle(fontSize: 18),
+        ),
       ),
       body: Obx(() {
         if (controller.isLoading.value) {

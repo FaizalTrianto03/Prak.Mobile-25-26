@@ -18,7 +18,10 @@ class LocationView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Live Location Tracker'),
+        title: const Text(
+          'Live Location Tracker',
+          style: TextStyle(fontSize: 18),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),

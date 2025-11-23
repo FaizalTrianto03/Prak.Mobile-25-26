@@ -109,6 +109,7 @@ class TodoFormView extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           controller.isEditing ? AppStrings.editTodo : AppStrings.addTodo,
+          style: const TextStyle(fontSize: 18),
         ),
       ),
       body: SingleChildScrollView(

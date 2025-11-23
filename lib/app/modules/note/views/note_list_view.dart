@@ -12,7 +12,10 @@ class NoteListView extends GetView<NoteController> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.notes),
+        title: const Text(
+          AppStrings.notes,
+          style: TextStyle(fontSize: 18),
+        ),
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
