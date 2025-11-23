@@ -94,25 +94,7 @@ class HomeView extends GetView<HomeController> {
               ),
               const SizedBox(height: 16),
 
-              // Notes Card
-              _buildMenuCard(
-                context: context,
-                icon: Icons.note_alt_outlined,
-                title: AppStrings.notes,
-                subtitle: AppStrings.manageNotes,
-                color: theme.colorScheme.primary,
-                onTap: controller.goToNotes,
-              ),
-              const SizedBox(height: 12),
-              _buildMenuCard(
-                context: context,
-                icon: Icons.checklist_rounded,
-                title: AppStrings.todos,
-                subtitle: AppStrings.manageTodos,
-                color: theme.colorScheme.secondary,
-                onTap: controller.goToTodos,
-              ),
-              const SizedBox(height: 12),
+              // Location Tracker Card
               _buildMenuCard(
                 context: context,
                 icon: Icons.location_on,

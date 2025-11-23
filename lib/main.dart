@@ -4,13 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'app/core/theme/app_theme.dart';
 import 'app/core/values/app_strings.dart';
-import 'app/data/services/local_storage_service.dart';
 import 'app/data/services/supabase_service.dart';
 import 'app/data/providers/auth_provider.dart';
-import 'app/data/providers/note_provider.dart';
-import 'app/data/providers/todo_provider.dart';
 import 'app/data/providers/theme_provider.dart';
-import 'app/data/services/storage_service.dart';
 import 'app/routes/app_pages.dart';
 
 Future<void> main() async {
@@ -33,10 +29,6 @@ Future<void> main() async {
 
     // Initialize Providers
     Get.put(AuthProvider());
-    Get.put(NoteProvider());
-    Get.put(StorageService());
-    await Get.putAsync(() => LocalStorageService().init());
-    Get.put(TodoProvider());
     final themeProvider = Get.put(ThemeProvider());
     await themeProvider.init();
 
