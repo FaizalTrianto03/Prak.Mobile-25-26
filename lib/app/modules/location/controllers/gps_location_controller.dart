@@ -101,6 +101,13 @@ class GpsLocationController extends GetxController {
   }
 
   Future<void> _initializeLocation() async {
+    if (kDebugMode) {
+      print('═══════════════════════════════════════════════════════════');
+      print('🛰️ [GPS CONTROLLER] _initializeLocation() called');
+      print('🛰️ [GPS CONTROLLER] Will fetch FRESH position (no cache)');
+      print('═══════════════════════════════════════════════════════════');
+    }
+
     try {
       _isLoading.value = true;
       _errorMessage.value = '';
@@ -108,6 +115,9 @@ class GpsLocationController extends GetxController {
       // GPS memerlukan GPS service aktif
       bool isEnabled = await _locationService.isLocationServiceEnabled();
       if (!isEnabled) {
+        if (kDebugMode) {
+          print('❌ [GPS CONTROLLER] GPS service is not enabled');
+        }
         _errorMessage.value = 'GPS tidak aktif. Silakan aktifkan GPS.';
         _isLoading.value = false;
         return;
@@ -120,14 +130,19 @@ class GpsLocationController extends GetxController {
         await requestPermission();
       }
 
-      await getLastKnownPosition();
+      // Langsung ambil posisi baru (tidak pakai cache)
+      // Ini memastikan data selalu fresh dan sesuai dengan GPS source
+      if (kDebugMode) {
+        print('🛰️ [GPS CONTROLLER] Fetching fresh position (no cache)...');
+      }
+      await getCurrentPosition();
 
       _isLoading.value = false;
     } catch (e) {
       _errorMessage.value = 'Error: ${e.toString()}';
       _isLoading.value = false;
       if (kDebugMode) {
-        print('Location initialization error: $e');
+        print('❌ [GPS CONTROLLER] Location initialization error: $e');
       }
     }
   }
@@ -137,15 +152,36 @@ class GpsLocationController extends GetxController {
       _isLoading.value = true;
       _errorMessage.value = '';
 
+      // Cek GPS service dulu
+      bool isGpsEnabled = await _locationService.isLocationServiceEnabled();
+      if (!isGpsEnabled) {
+        _errorMessage.value =
+            'GPS tidak aktif. Silakan aktifkan GPS di Settings.';
+        _isLoading.value = false;
+        return;
+      }
+
       bool granted = await _locationService.requestPermission(
         requireGps: true, // GPS memerlukan GPS service
       );
       _permissionStatus.value = await _locationService.checkPermission();
 
       if (!granted) {
-        _errorMessage.value =
-            'Permission lokasi ditolak. Silakan aktifkan di Settings.';
+        // Cek apakah permanently denied
+        bool isPermanentlyDenied = await _locationService
+            .isPermissionPermanentlyDenied();
+
+        if (isPermanentlyDenied) {
+          _errorMessage.value =
+              'Permission lokasi ditolak secara permanen. '
+              'Silakan aktifkan di Settings > App Permissions > Location.';
+        } else {
+          _errorMessage.value =
+              'Permission lokasi diperlukan untuk menggunakan GPS. '
+              'Silakan berikan izin saat diminta.';
+        }
       } else {
+        _errorMessage.value = '';
         await getCurrentPosition();
       }
 
@@ -153,6 +189,9 @@ class GpsLocationController extends GetxController {
     } catch (e) {
       _errorMessage.value = 'Error: ${e.toString()}';
       _isLoading.value = false;
+      if (kDebugMode) {
+        print('Request permission error: $e');
+      }
     }
   }
 
@@ -165,20 +204,98 @@ class GpsLocationController extends GetxController {
   }
 
   Future<void> getCurrentPosition() async {
+    if (kDebugMode) {
+      print('═══════════════════════════════════════════════════════════');
+      print('🛰️ [GPS CONTROLLER] getCurrentPosition() called');
+      print('🛰️ [GPS CONTROLLER] useGps parameter: true (GPS ONLY)');
+      print('═══════════════════════════════════════════════════════════');
+    }
+
     try {
       _isLoading.value = true;
       _errorMessage.value = '';
 
+      // Cek GPS service dulu
+      if (kDebugMode) {
+        print('🛰️ [GPS CONTROLLER] Checking GPS service status...');
+      }
+      bool isGpsEnabled = await _locationService.isLocationServiceEnabled();
+      if (!isGpsEnabled) {
+        if (kDebugMode) {
+          print('❌ [GPS CONTROLLER] GPS service is not enabled');
+        }
+        _errorMessage.value =
+            'GPS tidak aktif. Silakan aktifkan GPS di Settings.';
+        _isLoading.value = false;
+        return;
+      }
+      if (kDebugMode) {
+        print('✅ [GPS CONTROLLER] GPS service is enabled');
+      }
+
+      // Cek permission
+      bool hasPermission = await _locationService.isPermissionGranted();
+      if (!hasPermission) {
+        if (kDebugMode) {
+          print('❌ [GPS CONTROLLER] Permission not granted');
+        }
+        _errorMessage.value =
+            'Permission lokasi diperlukan. Silakan berikan izin.';
+        _isLoading.value = false;
+        return;
+      }
+
+      if (kDebugMode) {
+        print(
+          '🛰️ [GPS CONTROLLER] Calling LocationService.getCurrentPosition(useGps: true)',
+        );
+      }
+
       Position? position = await _locationService.getCurrentPosition(
-        useGps: true, // Selalu GPS
+        useGps: true, // Selalu GPS - HARUS TRUE
       );
+
+      if (kDebugMode) {
+        if (position != null) {
+          print('✅ [GPS CONTROLLER] Position received');
+          print('🛰️ [GPS CONTROLLER] Accuracy: ${position.accuracy}m');
+          print(
+            '🛰️ [GPS CONTROLLER] Lat: ${position.latitude}, Lng: ${position.longitude}',
+          );
+          if (position.accuracy > 100) {
+            print(
+              '⚠️ [GPS CONTROLLER] WARNING: High accuracy (>100m) suggests NETWORK was used!',
+            );
+            print(
+              '⚠️ [GPS CONTROLLER] This should not happen for GPS provider!',
+            );
+          } else {
+            print(
+              '✅ [GPS CONTROLLER] Low accuracy (<100m) confirms GPS source',
+            );
+          }
+        } else {
+          print('❌ [GPS CONTROLLER] No position received');
+        }
+        print('═══════════════════════════════════════════════════════════');
+      }
 
       if (position != null) {
         _currentPosition.value = position;
         _updateMapPosition(position);
         _errorMessage.value = '';
       } else {
-        _errorMessage.value = 'Tidak dapat mendapatkan posisi saat ini.';
+        // Cek permission state untuk memberikan error message yang lebih spesifik
+        _permissionStatus.value = await _locationService.checkPermission();
+        if (_permissionStatus.value == LocationPermission.deniedForever) {
+          _errorMessage.value =
+              'Permission lokasi ditolak secara permanen. '
+              'Silakan aktifkan di Settings.';
+        } else {
+          _errorMessage.value =
+              'Tidak dapat mendapatkan posisi GPS. '
+              'Pastikan GPS aktif dan permission lokasi sudah diberikan.';
+        }
       }
 
       _isLoading.value = false;
@@ -207,20 +324,71 @@ class GpsLocationController extends GetxController {
   }
 
   Future<void> startTracking() async {
+    if (kDebugMode) {
+      print('═══════════════════════════════════════════════════════════');
+      print('🛰️ [GPS CONTROLLER] startTracking() called');
+      print('🛰️ [GPS CONTROLLER] useGps parameter: true (GPS ONLY)');
+      print('═══════════════════════════════════════════════════════════');
+    }
+
     try {
-      bool hasPermission = await _locationService.requestPermission(
-        requireGps: true, // GPS memerlukan GPS service
-      );
+      // Cek GPS service dulu
+      if (kDebugMode) {
+        print('🛰️ [GPS CONTROLLER] Checking GPS service status...');
+      }
+      bool isGpsEnabled = await _locationService.isLocationServiceEnabled();
+      if (!isGpsEnabled) {
+        if (kDebugMode) {
+          print('❌ [GPS CONTROLLER] GPS service is not enabled');
+        }
+        _errorMessage.value =
+            'GPS tidak aktif. Silakan aktifkan GPS di Settings untuk memulai tracking.';
+        return;
+      }
+      if (kDebugMode) {
+        print('✅ [GPS CONTROLLER] GPS service is enabled');
+      }
+
+      // Cek permission dulu
+      bool hasPermission = await _locationService.isPermissionGranted();
       if (!hasPermission) {
-        _errorMessage.value = 'Permission lokasi diperlukan untuk tracking.';
+        // Request permission jika belum granted
+        if (kDebugMode) {
+          print(
+            '🛰️ [GPS CONTROLLER] Requesting permission (requireGps: true)',
+          );
+        }
+        hasPermission = await _locationService.requestPermission(
+          requireGps: true, // GPS memerlukan GPS service - HARUS TRUE
+        );
+      }
+
+      if (!hasPermission) {
+        _permissionStatus.value = await _locationService.checkPermission();
+        bool isPermanentlyDenied = await _locationService
+            .isPermissionPermanentlyDenied();
+
+        if (isPermanentlyDenied) {
+          _errorMessage.value =
+              'Permission lokasi diperlukan untuk tracking. '
+              'Silakan aktifkan di Settings > App Permissions > Location.';
+        } else {
+          _errorMessage.value =
+              'Permission lokasi diperlukan untuk tracking. '
+              'Silakan berikan izin saat diminta.';
+        }
         return;
       }
 
       _isTracking.value = true;
       _errorMessage.value = '';
 
+      if (kDebugMode) {
+        print('🛰️ [GPS CONTROLLER] Starting position stream (useGps: true)');
+      }
+
       Stream<Position>? positionStream = _locationService.getPositionStream(
-        useGps: true, // Selalu GPS
+        useGps: true, // Selalu GPS - HARUS TRUE
         distanceFilter: 10,
       );
 

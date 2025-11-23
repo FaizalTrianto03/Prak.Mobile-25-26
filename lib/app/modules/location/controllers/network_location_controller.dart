@@ -101,6 +101,13 @@ class NetworkLocationController extends GetxController {
   }
 
   Future<void> _initializeLocation() async {
+    if (kDebugMode) {
+      print('═══════════════════════════════════════════════════════════');
+      print('🌐 [NETWORK CONTROLLER] _initializeLocation() called');
+      print('🌐 [NETWORK CONTROLLER] Will fetch FRESH position (no cache)');
+      print('═══════════════════════════════════════════════════════════');
+    }
+
     try {
       _isLoading.value = true;
       _errorMessage.value = '';
@@ -113,14 +120,19 @@ class NetworkLocationController extends GetxController {
         await requestPermission();
       }
 
-      await getLastKnownPosition();
+      // Langsung ambil posisi baru (tidak pakai cache)
+      // Ini memastikan data selalu fresh dan sesuai dengan NETWORK source
+      if (kDebugMode) {
+        print('🌐 [NETWORK CONTROLLER] Fetching fresh position (no cache)...');
+      }
+      await getCurrentPosition();
 
       _isLoading.value = false;
     } catch (e) {
       _errorMessage.value = 'Error: ${e.toString()}';
       _isLoading.value = false;
       if (kDebugMode) {
-        print('Location initialization error: $e');
+        print('❌ [NETWORK CONTROLLER] Location initialization error: $e');
       }
     }
   }
@@ -136,9 +148,21 @@ class NetworkLocationController extends GetxController {
       _permissionStatus.value = await _locationService.checkPermission();
 
       if (!granted) {
-        _errorMessage.value =
-            'Permission lokasi ditolak. Silakan aktifkan di Settings.';
+        // Cek apakah permanently denied
+        bool isPermanentlyDenied = await _locationService
+            .isPermissionPermanentlyDenied();
+
+        if (isPermanentlyDenied) {
+          _errorMessage.value =
+              'Permission lokasi ditolak secara permanen. '
+              'Silakan aktifkan di Settings > App Permissions > Location.';
+        } else {
+          _errorMessage.value =
+              'Permission lokasi diperlukan untuk menggunakan Network Location. '
+              'Silakan berikan izin saat diminta.';
+        }
       } else {
+        _errorMessage.value = '';
         await getCurrentPosition();
       }
 
@@ -146,6 +170,9 @@ class NetworkLocationController extends GetxController {
     } catch (e) {
       _errorMessage.value = 'Error: ${e.toString()}';
       _isLoading.value = false;
+      if (kDebugMode) {
+        print('Request permission error: $e');
+      }
     }
   }
 
@@ -158,20 +185,80 @@ class NetworkLocationController extends GetxController {
   }
 
   Future<void> getCurrentPosition() async {
+    if (kDebugMode) {
+      print('═══════════════════════════════════════════════════════════');
+      print('🌐 [NETWORK CONTROLLER] getCurrentPosition() called');
+      print('🌐 [NETWORK CONTROLLER] useGps parameter: false (NETWORK ONLY)');
+      print('═══════════════════════════════════════════════════════════');
+    }
+
     try {
       _isLoading.value = true;
       _errorMessage.value = '';
 
+      // Cek permission dulu
+      bool hasPermission = await _locationService.isPermissionGranted();
+      if (!hasPermission) {
+        if (kDebugMode) {
+          print('❌ [NETWORK CONTROLLER] Permission not granted');
+        }
+        _errorMessage.value =
+            'Permission lokasi diperlukan. Silakan berikan izin.';
+        _isLoading.value = false;
+        return;
+      }
+
+      if (kDebugMode) {
+        print(
+          '🌐 [NETWORK CONTROLLER] Calling LocationService.getCurrentPosition(useGps: false)',
+        );
+      }
+
       Position? position = await _locationService.getCurrentPosition(
-        useGps: false, // Selalu network provider
+        useGps: false, // Selalu network provider - HARUS FALSE
       );
+
+      if (kDebugMode) {
+        if (position != null) {
+          print('✅ [NETWORK CONTROLLER] Position received');
+          print('🌐 [NETWORK CONTROLLER] Accuracy: ${position.accuracy}m');
+          print(
+            '🌐 [NETWORK CONTROLLER] Lat: ${position.latitude}, Lng: ${position.longitude}',
+          );
+          if (position.accuracy < 50) {
+            print(
+              '⚠️ [NETWORK CONTROLLER] WARNING: Low accuracy (<50m) suggests GPS was used!',
+            );
+            print(
+              '⚠️ [NETWORK CONTROLLER] This should not happen for NETWORK provider!',
+            );
+          } else {
+            print(
+              '✅ [NETWORK CONTROLLER] High accuracy (>50m) confirms NETWORK source',
+            );
+          }
+        } else {
+          print('❌ [NETWORK CONTROLLER] No position received');
+        }
+        print('═══════════════════════════════════════════════════════════');
+      }
 
       if (position != null) {
         _currentPosition.value = position;
         _updateMapPosition(position);
         _errorMessage.value = '';
       } else {
-        _errorMessage.value = 'Tidak dapat mendapatkan posisi saat ini.';
+        // Cek permission state untuk memberikan error message yang lebih spesifik
+        _permissionStatus.value = await _locationService.checkPermission();
+        if (_permissionStatus.value == LocationPermission.deniedForever) {
+          _errorMessage.value =
+              'Permission lokasi ditolak secara permanen. '
+              'Silakan aktifkan di Settings.';
+        } else {
+          _errorMessage.value =
+              'Tidak dapat mendapatkan posisi. '
+              'Pastikan koneksi internet aktif dan permission lokasi sudah diberikan.';
+        }
       }
 
       _isLoading.value = false;
@@ -200,20 +287,56 @@ class NetworkLocationController extends GetxController {
   }
 
   Future<void> startTracking() async {
+    if (kDebugMode) {
+      print('═══════════════════════════════════════════════════════════');
+      print('🌐 [NETWORK CONTROLLER] startTracking() called');
+      print('🌐 [NETWORK CONTROLLER] useGps parameter: false (NETWORK ONLY)');
+      print('═══════════════════════════════════════════════════════════');
+    }
+
     try {
-      bool hasPermission = await _locationService.requestPermission(
-        requireGps: false, // Network provider tidak perlu GPS
-      );
+      // Cek permission dulu
+      bool hasPermission = await _locationService.isPermissionGranted();
       if (!hasPermission) {
-        _errorMessage.value = 'Permission lokasi diperlukan untuk tracking.';
+        // Request permission jika belum granted
+        if (kDebugMode) {
+          print(
+            '🌐 [NETWORK CONTROLLER] Requesting permission (requireGps: false)',
+          );
+        }
+        hasPermission = await _locationService.requestPermission(
+          requireGps: false, // Network provider tidak perlu GPS - HARUS FALSE
+        );
+      }
+
+      if (!hasPermission) {
+        _permissionStatus.value = await _locationService.checkPermission();
+        bool isPermanentlyDenied = await _locationService
+            .isPermissionPermanentlyDenied();
+
+        if (isPermanentlyDenied) {
+          _errorMessage.value =
+              'Permission lokasi diperlukan untuk tracking. '
+              'Silakan aktifkan di Settings > App Permissions > Location.';
+        } else {
+          _errorMessage.value =
+              'Permission lokasi diperlukan untuk tracking. '
+              'Silakan berikan izin saat diminta.';
+        }
         return;
       }
 
       _isTracking.value = true;
       _errorMessage.value = '';
 
+      if (kDebugMode) {
+        print(
+          '🌐 [NETWORK CONTROLLER] Starting position stream (useGps: false)',
+        );
+      }
+
       Stream<Position>? positionStream = _locationService.getPositionStream(
-        useGps: false, // Selalu network provider
+        useGps: false, // Selalu network provider - HARUS FALSE
         distanceFilter: 10,
       );
 
