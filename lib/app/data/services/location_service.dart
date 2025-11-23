@@ -2,8 +2,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart'
     as permission_handler;
 
-/// Service untuk mengelola lokasi GPS
+/// Service untuk mengelola lokasi (GPS dan Network Provider)
 /// Menggunakan Geolocator dengan best practices
+/// Default menggunakan Network Provider saja (tanpa GPS)
 class LocationService {
   static final LocationService _instance = LocationService._internal();
   factory LocationService() => _instance;
@@ -21,12 +22,16 @@ class LocationService {
   }
 
   /// Request permission untuk akses lokasi
+  /// [requireGps]: true jika memerlukan GPS aktif, false untuk network provider saja
   /// Menggunakan permission_handler untuk handling yang lebih baik
-  Future<bool> requestPermission() async {
-    // Cek apakah service enabled
-    bool serviceEnabled = await isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return false;
+  Future<bool> requestPermission({bool requireGps = false}) async {
+    // Jika memerlukan GPS, cek apakah service enabled
+    // Jika hanya network provider, tidak perlu cek GPS service
+    if (requireGps) {
+      bool serviceEnabled = await isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        return false;
+      }
     }
 
     // Cek permission status
@@ -66,20 +71,26 @@ class LocationService {
   }
 
   /// Dapatkan posisi saat ini (one-time)
-  /// Menggunakan LocationAccuracy.high untuk akurasi terbaik
-  Future<Position?> getCurrentPosition() async {
+  /// [useGps]: true untuk GPS (high accuracy), false untuk network provider saja (low accuracy)
+  /// Default: false (network provider saja)
+  Future<Position?> getCurrentPosition({bool useGps = false}) async {
     try {
-      // Cek permission dulu
-      bool hasPermission = await requestPermission();
+      // Cek permission dulu (hanya require GPS jika useGps = true)
+      bool hasPermission = await requestPermission(requireGps: useGps);
       if (!hasPermission) {
         return null;
       }
 
-      // Dapatkan posisi dengan akurasi tinggi
+      // Pilih akurasi berdasarkan GPS toggle
+      // LocationAccuracy.low = network provider saja (tanpa GPS)
+      // LocationAccuracy.high = GPS dengan akurasi tinggi
+      final accuracy = useGps ? LocationAccuracy.high : LocationAccuracy.low;
+
+      // Dapatkan posisi dengan akurasi sesuai setting
       Position position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          timeLimit: Duration(seconds: 10),
+        locationSettings: LocationSettings(
+          accuracy: accuracy,
+          timeLimit: const Duration(seconds: 10),
         ),
       );
 
@@ -105,13 +116,17 @@ class LocationService {
   }
 
   /// Mulai listening posisi real-time
-  /// LocationSettings untuk konfigurasi akurasi dan interval
+  /// [useGps]: true untuk GPS (high accuracy), false untuk network provider saja (low accuracy)
+  /// Default: false (network provider saja)
   Stream<Position>? getPositionStream({
-    LocationAccuracy accuracy = LocationAccuracy.high,
+    bool useGps = false,
     int distanceFilter = 10, // meter
     Duration? timeLimit,
   }) {
     try {
+      // Pilih akurasi berdasarkan GPS toggle
+      final accuracy = useGps ? LocationAccuracy.high : LocationAccuracy.low;
+
       _positionStream = Geolocator.getPositionStream(
         locationSettings: LocationSettings(
           accuracy: accuracy,

@@ -6,10 +6,9 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../data/services/location_service.dart';
 
-/// Controller untuk Live Location Tracker
-/// Menggunakan GetX untuk state management
-/// Menggunakan OpenStreetMap dengan flutter_map
-class LocationController extends GetxController {
+/// Controller untuk GPS Location Tracker
+/// Menggunakan GPS dengan akurasi tinggi
+class GpsLocationController extends GetxController {
   final LocationService _locationService = LocationService();
 
   // Observables
@@ -19,7 +18,6 @@ class LocationController extends GetxController {
   final RxBool _isTracking = false.obs;
   final Rx<LocationPermission> _permissionStatus =
       LocationPermission.denied.obs;
-  final RxBool _isGpsEnabled = false.obs; // GPS toggle, default: off
 
   // FlutterMap Controller
   MapController? _mapController;
@@ -40,9 +38,7 @@ class LocationController extends GetxController {
   String get errorMessage => _errorMessage.value;
   bool get isTracking => _isTracking.value;
   LocationPermission get permissionStatus => _permissionStatus.value;
-  bool get isGpsEnabled => _isGpsEnabled.value;
   MapController get mapController {
-    // Jika null atau disposed, buat baru
     if (_mapController == null || _isDisposed) {
       try {
         _mapController?.dispose();
@@ -55,7 +51,6 @@ class LocationController extends GetxController {
     return _mapController!;
   }
 
-  /// Check if map controller is ready and not disposed
   bool get isMapControllerReady => _mapController != null && !_isDisposed;
   LatLng get mapCenter => _mapCenter.value;
   double get mapZoom => _mapZoom.value;
@@ -71,7 +66,6 @@ class LocationController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Reset state dan initialize map controller
     _isDisposed = false;
     try {
       _mapController?.dispose();
@@ -89,7 +83,6 @@ class LocationController extends GetxController {
     _positionSubscription?.cancel();
     _positionSubscription = null;
 
-    // Dispose map controller dengan error handling
     try {
       _mapController?.dispose();
     } catch (e) {
@@ -103,39 +96,30 @@ class LocationController extends GetxController {
     super.onClose();
   }
 
-  /// Safe method to check and use map controller
   bool _canUseMapController() {
     return !_isDisposed && _mapController != null;
   }
 
-  /// Initialize location service
   Future<void> _initializeLocation() async {
     try {
       _isLoading.value = true;
       _errorMessage.value = '';
 
-      // Jika GPS enabled, cek apakah GPS service aktif
-      // Jika GPS disabled (network only), tidak perlu cek GPS service
-      if (_isGpsEnabled.value) {
-        bool isEnabled = await _locationService.isLocationServiceEnabled();
-        if (!isEnabled) {
-          _errorMessage.value =
-              'GPS tidak aktif. Silakan aktifkan GPS atau gunakan Network Provider.';
-          _isLoading.value = false;
-          return;
-        }
+      // GPS memerlukan GPS service aktif
+      bool isEnabled = await _locationService.isLocationServiceEnabled();
+      if (!isEnabled) {
+        _errorMessage.value = 'GPS tidak aktif. Silakan aktifkan GPS.';
+        _isLoading.value = false;
+        return;
       }
 
-      // Cek permission
       _permissionStatus.value = await _locationService.checkPermission();
 
-      // Jika permission belum granted, request
       if (_permissionStatus.value == LocationPermission.denied ||
           _permissionStatus.value == LocationPermission.deniedForever) {
         await requestPermission();
       }
 
-      // Dapatkan posisi terakhir yang diketahui
       await getLastKnownPosition();
 
       _isLoading.value = false;
@@ -148,15 +132,13 @@ class LocationController extends GetxController {
     }
   }
 
-  /// Request permission untuk akses lokasi
   Future<void> requestPermission() async {
     try {
       _isLoading.value = true;
       _errorMessage.value = '';
 
-      // Request permission dengan GPS requirement sesuai toggle state
       bool granted = await _locationService.requestPermission(
-        requireGps: _isGpsEnabled.value,
+        requireGps: true, // GPS memerlukan GPS service
       );
       _permissionStatus.value = await _locationService.checkPermission();
 
@@ -164,7 +146,6 @@ class LocationController extends GetxController {
         _errorMessage.value =
             'Permission lokasi ditolak. Silakan aktifkan di Settings.';
       } else {
-        // Jika permission granted, dapatkan posisi saat ini
         await getCurrentPosition();
       }
 
@@ -175,25 +156,21 @@ class LocationController extends GetxController {
     }
   }
 
-  /// Buka location settings
   Future<void> openLocationSettings() async {
     await _locationService.openLocationSettings();
   }
 
-  /// Buka app settings
   Future<void> openAppSettings() async {
     await _locationService.openAppSettings();
   }
 
-  /// Dapatkan posisi saat ini (one-time)
   Future<void> getCurrentPosition() async {
     try {
       _isLoading.value = true;
       _errorMessage.value = '';
 
-      // Gunakan GPS toggle state
       Position? position = await _locationService.getCurrentPosition(
-        useGps: _isGpsEnabled.value,
+        useGps: true, // Selalu GPS
       );
 
       if (position != null) {
@@ -214,7 +191,6 @@ class LocationController extends GetxController {
     }
   }
 
-  /// Dapatkan posisi terakhir yang diketahui
   Future<void> getLastKnownPosition() async {
     try {
       Position? position = await _locationService.getLastKnownPosition();
@@ -230,12 +206,10 @@ class LocationController extends GetxController {
     }
   }
 
-  /// Mulai tracking posisi real-time
   Future<void> startTracking() async {
     try {
-      // Cek permission dulu (dengan GPS requirement sesuai toggle state)
       bool hasPermission = await _locationService.requestPermission(
-        requireGps: _isGpsEnabled.value,
+        requireGps: true, // GPS memerlukan GPS service
       );
       if (!hasPermission) {
         _errorMessage.value = 'Permission lokasi diperlukan untuk tracking.';
@@ -245,10 +219,9 @@ class LocationController extends GetxController {
       _isTracking.value = true;
       _errorMessage.value = '';
 
-      // Dapatkan stream posisi dengan GPS toggle state
       Stream<Position>? positionStream = _locationService.getPositionStream(
-        useGps: _isGpsEnabled.value,
-        distanceFilter: 10, // Update setiap 10 meter
+        useGps: true, // Selalu GPS
+        distanceFilter: 10,
       );
 
       if (positionStream != null) {
@@ -278,7 +251,6 @@ class LocationController extends GetxController {
     }
   }
 
-  /// Stop tracking posisi
   void _stopTracking() {
     _isTracking.value = false;
     _positionSubscription?.cancel();
@@ -286,37 +258,31 @@ class LocationController extends GetxController {
     _locationService.stopPositionStream();
   }
 
-  /// Stop tracking (public method)
   void stopTracking() {
     _stopTracking();
   }
 
-  /// Update map position (center dan zoom)
   void _updateMapPosition(Position position) {
     if (_isDisposed || !_canUseMapController()) return;
 
     final newCenter = LatLng(position.latitude, position.longitude);
     _mapCenter.value = newCenter;
 
-    // Animate map ke posisi baru (hanya jika map sudah ready)
     try {
       _mapController?.move(newCenter, _mapZoom.value);
     } catch (e) {
-      // Map belum ready atau sudah disposed, skip update
       if (kDebugMode) {
         print('Map controller not ready yet: $e');
       }
     }
   }
 
-  /// Update map center (untuk onMapMove callback)
   void updateMapCenter(LatLng center, double zoom) {
     if (_isDisposed) return;
     _mapCenter.value = center;
     _mapZoom.value = zoom;
   }
 
-  /// Set zoom level
   void setZoom(double zoom) {
     if (_isDisposed || !_canUseMapController()) return;
 
@@ -338,19 +304,16 @@ class LocationController extends GetxController {
     }
   }
 
-  /// Zoom in
   void zoomIn() {
     final newZoom = (_mapZoom.value + 1).clamp(3.0, 18.0);
     setZoom(newZoom);
   }
 
-  /// Zoom out
   void zoomOut() {
     final newZoom = (_mapZoom.value - 1).clamp(3.0, 18.0);
     setZoom(newZoom);
   }
 
-  /// Move map ke current position
   void moveToCurrentPosition() {
     if (_isDisposed || !_canUseMapController()) return;
 
@@ -368,12 +331,10 @@ class LocationController extends GetxController {
     }
   }
 
-  /// Refresh posisi
   Future<void> refreshPosition() async {
     await getCurrentPosition();
   }
 
-  /// Reset map controller (untuk retry setelah error)
   void resetMapController() {
     try {
       _mapController?.dispose();
@@ -384,43 +345,11 @@ class LocationController extends GetxController {
     _isDisposed = false;
   }
 
-  /// Toggle tracking
   Future<void> toggleTracking() async {
     if (_isTracking.value) {
       stopTracking();
     } else {
       await startTracking();
-    }
-  }
-
-  /// Toggle GPS on/off
-  /// Ketika GPS di-toggle, restart tracking jika sedang aktif
-  Future<void> toggleGps() async {
-    _isGpsEnabled.value = !_isGpsEnabled.value;
-
-    // Jika sedang tracking, restart dengan setting baru
-    if (_isTracking.value) {
-      _stopTracking();
-      await startTracking();
-    } else {
-      // Jika tidak tracking, refresh posisi dengan setting baru
-      await getCurrentPosition();
-    }
-  }
-
-  /// Set GPS enabled/disabled
-  Future<void> setGpsEnabled(bool enabled) async {
-    if (_isGpsEnabled.value != enabled) {
-      _isGpsEnabled.value = enabled;
-
-      // Jika sedang tracking, restart dengan setting baru
-      if (_isTracking.value) {
-        _stopTracking();
-        await startTracking();
-      } else {
-        // Jika tidak tracking, refresh posisi dengan setting baru
-        await getCurrentPosition();
-      }
     }
   }
 }

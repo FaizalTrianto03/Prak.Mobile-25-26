@@ -7,6 +7,10 @@ import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/location/bindings/location_binding.dart';
 import '../modules/location/views/location_view.dart';
+import '../modules/location/bindings/network_location_binding.dart';
+import '../modules/location/views/network_location_view.dart';
+import '../modules/location/bindings/gps_location_binding.dart';
+import '../modules/location/views/gps_location_view.dart';
 
 part 'app_routes.dart';
 
@@ -35,6 +39,16 @@ class AppPages {
       name: _Paths.LOCATION,
       page: () => const LocationView(),
       binding: LocationBinding(),
+    ),
+    GetPage(
+      name: _Paths.NETWORK_LOCATION,
+      page: () => const NetworkLocationView(),
+      binding: NetworkLocationBinding(),
+    ),
+    GetPage(
+      name: _Paths.GPS_LOCATION,
+      page: () => const GpsLocationView(),
+      binding: GpsLocationBinding(),
     ),
   ];
 }

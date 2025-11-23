@@ -5,23 +5,20 @@ import 'package:get/get.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:intl/intl.dart';
-import '../controllers/location_controller.dart';
+import '../controllers/network_location_controller.dart';
 
-/// View untuk Live Location Tracker
-/// Menampilkan koordinat dan OpenStreetMap dengan marker lokasi pengguna
-class LocationView extends StatelessWidget {
-  const LocationView({super.key});
+/// View untuk Network Provider Location Tracker
+/// Menggunakan network provider saja (tanpa GPS)
+class NetworkLocationView extends StatelessWidget {
+  const NetworkLocationView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<LocationController>();
+    final controller = Get.find<NetworkLocationController>();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Live Location Tracker',
-          style: TextStyle(fontSize: 18),
-        ),
+        title: const Text('Network Location', style: TextStyle(fontSize: 18)),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -97,7 +94,7 @@ class LocationView extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   FloatingActionButton(
-                    heroTag: 'zoom_in',
+                    heroTag: 'network_zoom_in',
                     mini: true,
                     onPressed: () {
                       try {
@@ -112,7 +109,7 @@ class LocationView extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   FloatingActionButton(
-                    heroTag: 'zoom_out',
+                    heroTag: 'network_zoom_out',
                     mini: true,
                     onPressed: () {
                       try {
@@ -127,7 +124,7 @@ class LocationView extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   FloatingActionButton(
-                    heroTag: 'center',
+                    heroTag: 'network_center',
                     mini: true,
                     onPressed: () {
                       try {
@@ -146,13 +143,22 @@ class LocationView extends StatelessWidget {
           ],
         );
       }),
-      floatingActionButton: null,
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: controller.toggleTracking,
+        icon: Obx(
+          () => Icon(controller.isTracking ? Icons.stop : Icons.play_arrow),
+        ),
+        label: Obx(
+          () =>
+              Text(controller.isTracking ? 'Stop Tracking' : 'Start Tracking'),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
   /// Build coordinate display widget
-  Widget _buildCoordinateDisplay(LocationController controller) {
+  Widget _buildCoordinateDisplay(NetworkLocationController controller) {
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
@@ -172,60 +178,20 @@ class LocationView extends StatelessWidget {
           children: <Widget>[
             Row(
               children: [
-                const Icon(Icons.location_on, color: Colors.red, size: 20),
+                const Icon(Icons.network_cell, color: Colors.blue, size: 20),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    'Koordinat Lokasi',
+                    'Network Provider Location',
                     style: Get.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const SizedBox(width: 6),
-                // GPS Toggle Switch
-                Obx(() => Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      controller.isGpsEnabled 
-                          ? Icons.gps_fixed 
-                          : Icons.gps_not_fixed,
-                      size: 16,
-                      color: controller.isGpsEnabled 
-                          ? Colors.green 
-                          : Colors.grey,
-                    ),
-                    const SizedBox(width: 3),
-                    Text(
-                      controller.isGpsEnabled ? 'GPS' : 'Net',
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: controller.isGpsEnabled 
-                            ? Colors.green 
-                            : Colors.grey,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(width: 2),
-                    SizedBox(
-                      width: 40,
-                      height: 24,
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Switch(
-                          value: controller.isGpsEnabled,
-                          onChanged: (value) => controller.toggleGps(),
-                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                      ),
-                    ),
-                  ],
-                )),
                 if (controller.isTracking)
                   Container(
-                    margin: const EdgeInsets.only(left: 4),
+                    margin: const EdgeInsets.only(left: 8),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 6,
                       vertical: 3,
@@ -320,11 +286,11 @@ class LocationView extends StatelessWidget {
                   ),
                 ),
               ),
-            ], // closes if/else spread
-          ], // closes children: [ from line 161
-        ), // Column
-      ), // SingleChildScrollView
-    ); // Container
+            ],
+          ],
+        ),
+      ),
+    );
   }
 
   /// Build coordinate row
@@ -410,7 +376,7 @@ class LocationView extends StatelessWidget {
   }
 
   /// Build OpenStreetMap widget menggunakan FlutterMap
-  Widget _buildOpenStreetMap(LocationController controller) {
+  Widget _buildOpenStreetMap(NetworkLocationController controller) {
     if (controller.currentPosition == null) {
       return Center(
         child: Column(
@@ -434,7 +400,6 @@ class LocationView extends StatelessWidget {
     }
 
     return Obx(() {
-      // Render map langsung, handle error dengan try-catch
       try {
         return FlutterMap(
           mapController: controller.mapController,
@@ -451,7 +416,6 @@ class LocationView extends StatelessWidget {
                     controller.updateMapCenter(camera.center, camera.zoom);
                   }
                 } catch (e) {
-                  // Ignore error if controller is disposed
                   if (kDebugMode) {
                     print('Error updating map center: $e');
                   }
@@ -460,16 +424,12 @@ class LocationView extends StatelessWidget {
             },
           ),
           children: [
-            // Tile Layer - OpenStreetMap tiles
             TileLayer(
               urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
               userAgentPackageName: 'flutter_supabase',
               maxZoom: 19,
-              // Retina mode untuk kualitas lebih baik
               retinaMode: MediaQuery.of(Get.context!).devicePixelRatio > 1.0,
             ),
-
-            // Marker Layer - Menampilkan marker lokasi pengguna
             if (controller.currentPosition != null)
               MarkerLayer(
                 markers: [
@@ -480,7 +440,7 @@ class LocationView extends StatelessWidget {
                     alignment: Alignment.center,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.red,
+                        color: Colors.blue,
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.white, width: 3),
                         boxShadow: [
@@ -500,8 +460,6 @@ class LocationView extends StatelessWidget {
                   ),
                 ],
               ),
-
-            // Attribution
             RichAttributionWidget(
               alignment: AttributionAlignment.bottomLeft,
               popupBackgroundColor: Colors.white,
@@ -513,7 +471,6 @@ class LocationView extends StatelessWidget {
           ],
         );
       } catch (e) {
-        // Jika error, tampilkan error message dan tombol retry
         if (kDebugMode) {
           print('Error rendering map: $e');
         }
@@ -527,7 +484,6 @@ class LocationView extends StatelessWidget {
               const SizedBox(height: 24),
               ElevatedButton.icon(
                 onPressed: () {
-                  // Reset map controller dan refresh
                   controller.resetMapController();
                   controller.refreshPosition();
                 },

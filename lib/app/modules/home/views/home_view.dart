@@ -94,14 +94,26 @@ class HomeView extends GetView<HomeController> {
               ),
               const SizedBox(height: 16),
 
-              // Location Tracker Card
+              // Network Location Card
               _buildMenuCard(
                 context: context,
-                icon: Icons.location_on,
-                title: 'Live Location Tracker',
-                subtitle: 'Lacak posisi GPS real-time',
+                icon: Icons.network_cell,
+                title: 'Network Location',
+                subtitle: 'Lacak posisi menggunakan Network Provider',
+                color: Colors.blue,
+                onTap: controller.goToNetworkLocation,
+              ),
+
+              const SizedBox(height: 12),
+
+              // GPS Location Card
+              _buildMenuCard(
+                context: context,
+                icon: Icons.gps_fixed,
+                title: 'GPS Location',
+                subtitle: 'Lacak posisi menggunakan GPS',
                 color: Colors.green,
-                onTap: controller.goToLocation,
+                onTap: controller.goToGpsLocation,
               ),
             ],
           ),
