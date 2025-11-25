@@ -8,7 +8,7 @@ plugins {
 android {
     namespace = "com.mobile.modul5"
     // Set compileSdk explicitly to fix lStar attribute error and support newer dependencies
-    compileSdk = 35
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
