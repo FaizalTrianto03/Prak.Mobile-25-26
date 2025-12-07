@@ -8,9 +8,7 @@ class NotificationTestView extends GetView<NotificationTestController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Test Notifications'),
-      ),
+      appBar: AppBar(title: const Text('Test Notifications')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(
@@ -27,7 +25,7 @@ class NotificationTestView extends GetView<NotificationTestController> {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      'Please ensure you have added a file named "custom_notif.mp3" or "custom_notif.wav" in "android/app/src/main/res/raw/" for Android and in the root of resources for iOS.',
+                      'Terdapat file audio default yang akan diputar. Tugas Anda adalah menemukan di mana file tersebut disimpan dalam struktur project Android dan menggantinya dengan audio pilihan Anda sendiri!\n\nClue: Periksa folder resource Android.',
                       style: TextStyle(color: Colors.grey),
                     ),
                   ],
@@ -60,22 +58,31 @@ class NotificationTestView extends GetView<NotificationTestController> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Timer Notification', style: TextStyle(fontSize: 16)),
-                            Obx(() => Text('${controller.timerValue.value.toInt()} seconds')),
+                            const Text(
+                              'Timer Notification',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            Obx(
+                              () => Text(
+                                '${controller.timerValue.value.toInt()} seconds',
+                              ),
+                            ),
                           ],
                         ),
                       ],
                     ),
-                    Obx(() => Slider(
-                      value: controller.timerValue.value,
-                      min: 1,
-                      max: 60,
-                      divisions: 59,
-                      label: controller.timerValue.value.round().toString(),
-                      onChanged: (double value) {
-                        controller.timerValue.value = value;
-                      },
-                    )),
+                    Obx(
+                      () => Slider(
+                        value: controller.timerValue.value,
+                        min: 1,
+                        max: 60,
+                        divisions: 59,
+                        label: controller.timerValue.value.round().toString(),
+                        onChanged: (double value) {
+                          controller.timerValue.value = value;
+                        },
+                      ),
+                    ),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -105,4 +112,3 @@ class NotificationTestView extends GetView<NotificationTestController> {
     );
   }
 }
-
