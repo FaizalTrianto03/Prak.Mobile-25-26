@@ -46,51 +46,13 @@ class NotificationTestView extends GetView<NotificationTestController> {
             ),
             const SizedBox(height: 16),
             Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.timer, color: Colors.orange),
-                        const SizedBox(width: 16),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Timer Notification',
-                              style: TextStyle(fontSize: 16),
-                            ),
-                            Obx(
-                              () => Text(
-                                '${controller.timerValue.value.toInt()} seconds',
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    Obx(
-                      () => Slider(
-                        value: controller.timerValue.value,
-                        min: 1,
-                        max: 60,
-                        divisions: 59,
-                        label: controller.timerValue.value.round().toString(),
-                        onChanged: (double value) {
-                          controller.timerValue.value = value;
-                        },
-                      ),
-                    ),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: controller.startTimerNotification,
-                        child: const Text('Start Timer'),
-                      ),
-                    ),
-                  ],
+              child: ListTile(
+                leading: const Icon(Icons.notifications_active, color: Colors.orange),
+                title: const Text('Instant Notification'),
+                subtitle: const Text('Test instant notification'),
+                trailing: ElevatedButton(
+                  onPressed: controller.showInstantNotification,
+                  child: const Text('Show'),
                 ),
               ),
             ),

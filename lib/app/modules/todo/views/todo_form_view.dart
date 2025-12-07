@@ -20,8 +20,8 @@ class TodoFormController extends GetxController {
 
   final Rx<DateTime?> selectedDate = Rx<DateTime?>(null);
   final Rx<TimeOfDay?> selectedTime = Rx<TimeOfDay?>(null);
-  final RxBool hasReminder = false.obs;
-  final RxInt reminderMinutesBefore = 15.obs; // Default 15 menit
+  // final RxBool hasReminder = false.obs; // Removed
+  // final RxInt reminderMinutesBefore = 15.obs; // Removed
 
   TodoModel? todo;
 
@@ -38,7 +38,7 @@ class TodoFormController extends GetxController {
         selectedDate.value = todo!.dueDate;
         selectedTime.value = TimeOfDay.fromDateTime(todo!.dueDate!);
       }
-      hasReminder.value = todo!.hasReminder;
+      // hasReminder.value = todo!.hasReminder;
     }
   }
 
@@ -107,7 +107,7 @@ class TodoFormController extends GetxController {
           title: trimmedTitle,
           description: trimmedDescription,
           dueDate: finalDueDate,
-          hasReminder: hasReminder.value,
+          hasReminder: false, // Scheduled notifications removed
         );
 
         await _todoProvider.updateTodo(updated);
@@ -121,29 +121,18 @@ class TodoFormController extends GetxController {
           isCompleted: false,
           createdAt: DateTime.now(),
           dueDate: finalDueDate,
-          hasReminder: hasReminder.value,
+          hasReminder: false, // Scheduled notifications removed
         );
 
         await _todoProvider.addTodo(newTodo);
         message = AppStrings.todoAddedSuccess;
       }
 
-      // Handle Notification
-      if (hasReminder.value && finalDueDate != null) {
-        final scheduledTime = finalDueDate.subtract(
-          Duration(minutes: reminderMinutesBefore.value),
-        );
-        if (scheduledTime.isAfter(DateTime.now())) {
-          await _notificationHandler.scheduleNotification(
-            todoId,
-            'Pengingat Tugas',
-            'Tugas "$trimmedTitle" akan jatuh tempo dalam ${reminderMinutesBefore.value} menit!',
-            scheduledTime,
-          );
-        }
-      } else {
-        await _notificationHandler.cancelNotification(todoId);
-      }
+      // Handle Notification - Instant notification on save
+      await _notificationHandler.showNotification(
+        title: isEditing ? 'Task Updated' : 'Task Created',
+        body: 'Task "$trimmedTitle" has been ${isEditing ? 'updated' : 'created'}.',
+      );
 
       try {
         final todoController = Get.find<TodoController>();
@@ -215,99 +204,39 @@ class TodoFormView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              Obx(
-                () => SwitchListTile(
-                  title: const Text('Aktifkan Pengingat'),
-                  subtitle: Text(
-                    'Notifikasi ${controller.reminderMinutesBefore.value} menit sebelum deadline',
+              // Reminder UI removed as per request to remove scheduled notifications.
+              // Date/Time picker kept for Due Date.
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => controller.pickDate(context),
+                      icon: const Icon(Icons.calendar_today),
+                      label: Obx(() => Text( // Wrapped in Obx
+                        controller.selectedDate.value == null
+                            ? 'Pilih Tanggal'
+                            : DateFormat(
+                                'dd MMM yyyy',
+                              ).format(controller.selectedDate.value!),
+                      )),
+                    ),
                   ),
-                  value: controller.hasReminder.value,
-                  onChanged: (val) => controller.hasReminder.value = val,
-                ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => controller.pickTime(context),
+                      icon: const Icon(Icons.access_time),
+                      label: Obx(() => Text( // Wrapped in Obx
+                        controller.selectedTime.value == null
+                            ? 'Pilih Jam'
+                            : controller.selectedTime.value!.format(
+                                context,
+                              ),
+                      )),
+                    ),
+                  ),
+                ],
               ),
-              Obx(() {
-                if (!controller.hasReminder.value) {
-                  return const SizedBox.shrink();
-                }
-                return Column(
-                  children: [
-                    const SizedBox(height: 8),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Row(
-                        children: [
-                          const Text('Ingatkan: '),
-                          Expanded(
-                            child: DropdownButton<int>(
-                              value: controller.reminderMinutesBefore.value,
-                              isExpanded: true,
-                              items: const [
-                                DropdownMenuItem(
-                                  value: 1,
-                                  child: Text('1 Menit Sebelum'),
-                                ),
-                                DropdownMenuItem(
-                                  value: 10,
-                                  child: Text('10 Menit Sebelum'),
-                                ),
-                                DropdownMenuItem(
-                                  value: 15,
-                                  child: Text('15 Menit Sebelum'),
-                                ),
-                                DropdownMenuItem(
-                                  value: 30,
-                                  child: Text('30 Menit Sebelum'),
-                                ),
-                                DropdownMenuItem(
-                                  value: 60,
-                                  child: Text('1 Jam Sebelum'),
-                                ),
-                              ],
-                              onChanged: (val) {
-                                if (val != null) {
-                                  controller.reminderMinutesBefore.value = val;
-                                }
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () => controller.pickDate(context),
-                            icon: const Icon(Icons.calendar_today),
-                            label: Text(
-                              controller.selectedDate.value == null
-                                  ? 'Pilih Tanggal'
-                                  : DateFormat(
-                                      'dd MMM yyyy',
-                                    ).format(controller.selectedDate.value!),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () => controller.pickTime(context),
-                            icon: const Icon(Icons.access_time),
-                            label: Text(
-                              controller.selectedTime.value == null
-                                  ? 'Pilih Jam'
-                                  : controller.selectedTime.value!.format(
-                                      context,
-                                    ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                );
-              }),
               const SizedBox(height: 32),
               Obx(
                 () => FilledButton(

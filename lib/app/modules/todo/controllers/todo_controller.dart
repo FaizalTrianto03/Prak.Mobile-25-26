@@ -46,12 +46,16 @@ class TodoController extends GetxController {
         todos[index] = updated;
       }
       
-      // If completed, maybe cancel notification? The prompt says "Pembatalan notifikasi saat tugas selesai/dihapus"
       if (updated.isCompleted) {
-         await _notificationHandler.cancelNotification(updated.id);
-      } else if (updated.hasReminder && updated.dueDate != null && updated.dueDate!.isAfter(DateTime.now())) {
-         // Reschedule if uncompleted and in future? (Optional but good)
-         // For now, let's just follow "cancel on complete".
+         await _notificationHandler.showNotification(
+           title: 'Task Completed',
+           body: 'Task "${updated.title}" marked as completed.',
+         );
+      } else {
+         await _notificationHandler.showNotification(
+           title: 'Task Updated',
+           body: 'Task "${updated.title}" marked as incomplete.',
+         );
       }
 
     } catch (e) {
@@ -86,7 +90,10 @@ class TodoController extends GetxController {
     if (confirm == true) {
       try {
         await _todoProvider.deleteTodo(todo.id);
-        await _notificationHandler.cancelNotification(todo.id); // Cancel notification
+        await _notificationHandler.showNotification(
+          title: 'Task Deleted',
+          body: 'Task "${todo.title}" has been deleted.',
+        );
         todos.removeWhere((item) => item.id == todo.id);
         Get.snackbar(
           'Success',

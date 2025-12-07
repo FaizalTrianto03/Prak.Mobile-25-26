@@ -164,47 +164,13 @@ class NotificationHandler {
     );
 
     await _localNotification.show(
-      0, // ID
+      DateTime.now().millisecond, // Unique ID for each notification
       title,
       body,
       platformChannelSpecifics,
       payload: 'plain notification',
     );
     _logNotification(title, body, 'local');
-  }
-
-  Future<void> scheduleNotification(
-    int id,
-    String title,
-    String body,
-    DateTime scheduledDate,
-  ) async {
-    await _localNotification.zonedSchedule(
-      id,
-      title,
-      body,
-      tz.TZDateTime.from(scheduledDate, tz.local),
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'reminder_channel',
-          'Task Reminder',
-          channelDescription: 'Channel for task reminders',
-          importance: Importance.high,
-          priority: Priority.high,
-        ),
-        iOS: DarwinNotificationDetails(),
-      ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-      // Removed matchDateTimeComponents for one-time notifications
-    );
-    // Log scheduled notification
-    _logNotification(title, body, 'scheduled');
-  }
-
-  Future<void> cancelNotification(int id) async {
-    await _localNotification.cancel(id);
   }
 
   Future<void> showProgressNotification() async {
@@ -270,46 +236,6 @@ class NotificationHandler {
       'Custom Sound Notification',
       'This is a notification with a custom sound!',
       'local',
-    );
-  }
-
-  Future<void> showScheduledTimerNotification(int seconds) async {
-    // Best Practice: Use DateTime.now().add() for simple timers
-    // UILocalNotificationDateInterpretation.absoluteTime ensures it fires at exact time
-    final scheduledDate = tz.TZDateTime.now(
-      tz.local,
-    ).add(Duration(seconds: seconds));
-
-    await _localNotification.zonedSchedule(
-      0, // Use consistent ID for timer to avoid stacking notifications
-      'Timer Selesai',
-      '$seconds detik telah berlalu!',
-      scheduledDate,
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'timer_channel',
-          'Timer Notification',
-          channelDescription: 'Channel for timer notifications',
-          importance: Importance.max,
-          priority: Priority.high,
-          // Best Practice: Add sound/vibration for timer completion
-          playSound: true,
-          enableVibration: true,
-        ),
-        iOS: DarwinNotificationDetails(
-          sound: 'default',
-          interruptionLevel: InterruptionLevel.timeSensitive,
-        ),
-      ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-    );
-
-    _logNotification(
-      'Timer Notification',
-      'Timer set for $seconds seconds',
-      'scheduled',
     );
   }
 
