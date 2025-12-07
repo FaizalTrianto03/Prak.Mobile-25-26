@@ -1,4 +1,4 @@
-package com.example.flutter_supabase
+package com.mobile.modul6
 
 import io.flutter.embedding.android.FlutterActivity
 

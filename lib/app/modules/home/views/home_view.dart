@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/values/app_strings.dart';
 import '../../../data/providers/theme_provider.dart';
+import '../../../routes/app_pages.dart';
 import '../../auth/controllers/auth_controller.dart';
 import '../controllers/home_controller.dart';
 
@@ -12,21 +13,23 @@ class HomeView extends GetView<HomeController> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final themeProvider = Get.find<ThemeProvider>();
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(AppStrings.home),
         actions: [
           // Theme Toggle Button
-          Obx(() => IconButton(
-            icon: Icon(
-              themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+          Obx(
+            () => IconButton(
+              icon: Icon(
+                themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+              ),
+              onPressed: () {
+                themeProvider.toggleTheme();
+              },
+              tooltip: themeProvider.isDarkMode ? 'Light Mode' : 'Dark Mode',
             ),
-            onPressed: () {
-              themeProvider.toggleTheme();
-            },
-            tooltip: themeProvider.isDarkMode ? 'Light Mode' : 'Dark Mode',
-          )),
+          ),
           PopupMenuButton<String>(
             icon: const Icon(Icons.account_circle),
             itemBuilder: (context) => [
@@ -112,6 +115,15 @@ class HomeView extends GetView<HomeController> {
                 color: theme.colorScheme.secondary,
                 onTap: controller.goToTodos,
               ),
+              const SizedBox(height: 12),
+              _buildMenuCard(
+                context: context,
+                icon: Icons.notifications_outlined,
+                title: 'Riwayat Notifikasi',
+                subtitle: 'Lihat notifikasi masuk',
+                color: Colors.orange,
+                onTap: () => Get.toNamed(Routes.NOTIFICATION_HISTORY),
+              ),
             ],
           ),
         ),
@@ -128,7 +140,7 @@ class HomeView extends GetView<HomeController> {
     required VoidCallback onTap,
   }) {
     final theme = Theme.of(context);
-    
+
     return Card(
       child: InkWell(
         onTap: onTap,
@@ -143,11 +155,7 @@ class HomeView extends GetView<HomeController> {
                   color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
-                  icon,
-                  color: color,
-                  size: 32,
-                ),
+                child: Icon(icon, color: color, size: 32),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -188,10 +196,7 @@ class _WelcomeCard extends StatelessWidget {
   final String userEmail;
   final ThemeData theme;
 
-  const _WelcomeCard({
-    required this.userEmail,
-    required this.theme,
-  });
+  const _WelcomeCard({required this.userEmail, required this.theme});
 
   @override
   Widget build(BuildContext context) {
@@ -213,11 +218,7 @@ class _WelcomeCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(
-              Icons.waving_hand,
-              color: Colors.white,
-              size: 40,
-            ),
+            const Icon(Icons.waving_hand, color: Colors.white, size: 40),
             const SizedBox(height: 16),
             Text(
               AppStrings.welcomeBack,

@@ -11,6 +11,7 @@ import '../modules/note/views/note_form_view.dart';
 import '../modules/todo/bindings/todo_binding.dart';
 import '../modules/todo/views/todo_list_view.dart';
 import '../modules/todo/views/todo_form_view.dart';
+import '../modules/notifications/views/notification_history_view.dart';
 
 part 'app_routes.dart';
 
@@ -54,6 +55,10 @@ class AppPages {
       name: _Paths.TODO_FORM,
       page: () => TodoFormView(),
       binding: TodoBinding(),
+    ),
+    GetPage(
+      name: _Paths.NOTIFICATION_HISTORY,
+      page: () => const NotificationHistoryView(),
     ),
   ];
 }

@@ -1,6 +1,6 @@
 class AppStrings {
   // App
-  static const String appName = 'Module 4: Local Storage & Cloud Storage';
+  static const String appName = 'Modul 6: Push Notification';
 
   // Auth
   static const String login = 'Login';

@@ -4,10 +4,12 @@ import 'package:get/get.dart';
 import '../../../core/values/app_strings.dart';
 import '../../../data/models/todo_model.dart';
 import '../../../data/providers/todo_provider.dart';
+import '../../../data/services/notification_handler.dart';
 import '../../../routes/app_pages.dart';
 
 class TodoController extends GetxController {
   final TodoProvider _todoProvider = Get.find();
+  final NotificationHandler _notificationHandler = Get.find();
 
   final todos = <TodoModel>[].obs;
   final isLoading = true.obs;
@@ -43,6 +45,15 @@ class TodoController extends GetxController {
       if (index != -1) {
         todos[index] = updated;
       }
+      
+      // If completed, maybe cancel notification? The prompt says "Pembatalan notifikasi saat tugas selesai/dihapus"
+      if (updated.isCompleted) {
+         await _notificationHandler.cancelNotification(updated.id);
+      } else if (updated.hasReminder && updated.dueDate != null && updated.dueDate!.isAfter(DateTime.now())) {
+         // Reschedule if uncompleted and in future? (Optional but good)
+         // For now, let's just follow "cancel on complete".
+      }
+
     } catch (e) {
       Get.snackbar(
         'Error',
@@ -75,6 +86,7 @@ class TodoController extends GetxController {
     if (confirm == true) {
       try {
         await _todoProvider.deleteTodo(todo.id);
+        await _notificationHandler.cancelNotification(todo.id); // Cancel notification
         todos.removeWhere((item) => item.id == todo.id);
         Get.snackbar(
           'Success',

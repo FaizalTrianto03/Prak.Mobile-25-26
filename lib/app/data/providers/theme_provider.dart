@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/notification_handler.dart';
 
 class ThemeProvider extends GetxController {
   static const String _themeKey = 'isDarkTheme';
@@ -37,6 +38,18 @@ class ThemeProvider extends GetxController {
       final prefs = await SharedPreferences.getInstance();
       _isDarkMode.value = !_isDarkMode.value;
       await prefs.setBool(_themeKey, _isDarkMode.value);
+      
+      // Notify user about theme change
+      try {
+        final notificationHandler = Get.find<NotificationHandler>();
+        await notificationHandler.showNotification(
+          title: 'Tema Berubah',
+          body: 'Tema aplikasi telah diubah ke ${_isDarkMode.value ? "Dark Mode" : "Light Mode"}',
+        );
+      } catch (e) {
+        debugPrint('Failed to show theme notification: $e');
+      }
+
       if (kDebugMode) {
         debugPrint('Theme toggled to: ${_isDarkMode.value ? "Dark" : "Light"}');
       }

@@ -21,12 +21,20 @@ class TodoModel {
   @HiveField(4)
   final DateTime createdAt;
 
+  @HiveField(5)
+  final DateTime? dueDate;
+
+  @HiveField(6)
+  final bool hasReminder;
+
   const TodoModel({
     required this.id,
     required this.title,
     required this.description,
     required this.isCompleted,
     required this.createdAt,
+    this.dueDate,
+    this.hasReminder = false,
   });
 
   TodoModel copyWith({
@@ -35,6 +43,8 @@ class TodoModel {
     String? description,
     bool? isCompleted,
     DateTime? createdAt,
+    DateTime? dueDate,
+    bool? hasReminder,
   }) {
     return TodoModel(
       id: id ?? this.id,
@@ -42,6 +52,8 @@ class TodoModel {
       description: description ?? this.description,
       isCompleted: isCompleted ?? this.isCompleted,
       createdAt: createdAt ?? this.createdAt,
+      dueDate: dueDate ?? this.dueDate,
+      hasReminder: hasReminder ?? this.hasReminder,
     );
   }
 }
