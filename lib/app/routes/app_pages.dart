@@ -12,6 +12,8 @@ import '../modules/todo/bindings/todo_binding.dart';
 import '../modules/todo/views/todo_list_view.dart';
 import '../modules/todo/views/todo_form_view.dart';
 import '../modules/notifications/views/notification_history_view.dart';
+import '../modules/notifications_test/bindings/notification_test_binding.dart';
+import '../modules/notifications_test/views/notification_test_view.dart';
 
 part 'app_routes.dart';
 
@@ -59,6 +61,11 @@ class AppPages {
     GetPage(
       name: _Paths.NOTIFICATION_HISTORY,
       page: () => const NotificationHistoryView(),
+    ),
+    GetPage(
+      name: _Paths.NOTIFICATIONS_TEST,
+      page: () => const NotificationTestView(),
+      binding: NotificationTestBinding(),
     ),
   ];
 }

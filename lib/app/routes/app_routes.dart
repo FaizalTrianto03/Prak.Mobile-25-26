@@ -10,6 +10,7 @@ abstract class Routes {
   static const TODO_LIST = _Paths.TODO_LIST;
   static const TODO_FORM = _Paths.TODO_FORM;
   static const NOTIFICATION_HISTORY = _Paths.NOTIFICATION_HISTORY;
+  static const NOTIFICATIONS_TEST = _Paths.NOTIFICATIONS_TEST;
 }
 
 abstract class _Paths {
@@ -22,4 +23,5 @@ abstract class _Paths {
   static const TODO_LIST = '/todos';
   static const TODO_FORM = '/todo-form';
   static const NOTIFICATION_HISTORY = '/notification-history';
+  static const NOTIFICATIONS_TEST = '/notifications-test';
 }

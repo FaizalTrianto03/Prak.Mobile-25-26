@@ -20,7 +20,9 @@ class NotificationHandler {
       FlutterLocalNotificationsPlugin();
 
   // Lazily get NotificationProvider to avoid init issues if not ready
-  NotificationProvider _notificationProvider = Get.put(NotificationProvider());
+  final NotificationProvider _notificationProvider = Get.put(
+    NotificationProvider(),
+  );
 
   // Android Notification Channel
   final _androidChannel = const AndroidNotificationChannel(
@@ -109,13 +111,13 @@ class NotificationHandler {
         try {
           timeZoneName = localTimezone.id;
         } catch (_) {
-           // Fallback for TimezoneInfo(Asia/Jakarta, ...) string format if no .id
-           final str = localTimezone.toString();
-           if (str.startsWith('TimezoneInfo(')) {
-             timeZoneName = str.split(',')[0].substring(13);
-           } else {
-             timeZoneName = 'UTC';
-           }
+          // Fallback for TimezoneInfo(Asia/Jakarta, ...) string format if no .id
+          final str = localTimezone.toString();
+          if (str.startsWith('TimezoneInfo(')) {
+            timeZoneName = str.split(',')[0].substring(13);
+          } else {
+            timeZoneName = 'UTC';
+          }
         }
       }
       tz.setLocalLocation(tz.getLocation(timeZoneName));
@@ -234,6 +236,81 @@ class NotificationHandler {
         );
       });
     }
+  }
+
+  Future<void> showCustomSoundNotification() async {
+    const androidPlatformChannelSpecifics = AndroidNotificationDetails(
+      'custom_sound_channel',
+      'Custom Sound Notification',
+      channelDescription: 'Notifications with custom sound',
+      importance: Importance.max,
+      priority: Priority.high,
+      ticker: 'ticker',
+      sound: RawResourceAndroidNotificationSound('hehe'),
+      playSound: true,
+    );
+
+    const iOSPlatformChannelSpecifics = DarwinNotificationDetails(
+      sound: 'hehe.mp3',
+    );
+
+    const platformChannelSpecifics = NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+      iOS: iOSPlatformChannelSpecifics,
+    );
+
+    await _localNotification.show(
+      DateTime.now().millisecond,
+      'Custom Sound Notification',
+      'This is a notification with a custom sound!',
+      platformChannelSpecifics,
+      payload: 'custom_sound',
+    );
+    _logNotification(
+      'Custom Sound Notification',
+      'This is a notification with a custom sound!',
+      'local',
+    );
+  }
+
+  Future<void> showScheduledTimerNotification(int seconds) async {
+    // Best Practice: Use DateTime.now().add() for simple timers
+    // UILocalNotificationDateInterpretation.absoluteTime ensures it fires at exact time
+    final scheduledDate = tz.TZDateTime.now(
+      tz.local,
+    ).add(Duration(seconds: seconds));
+
+    await _localNotification.zonedSchedule(
+      0, // Use consistent ID for timer to avoid stacking notifications
+      'Timer Selesai',
+      '$seconds detik telah berlalu!',
+      scheduledDate,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'timer_channel',
+          'Timer Notification',
+          channelDescription: 'Channel for timer notifications',
+          importance: Importance.max,
+          priority: Priority.high,
+          // Best Practice: Add sound/vibration for timer completion
+          playSound: true,
+          enableVibration: true,
+        ),
+        iOS: DarwinNotificationDetails(
+          sound: 'default',
+          interruptionLevel: InterruptionLevel.timeSensitive,
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+    );
+
+    _logNotification(
+      'Timer Notification',
+      'Timer set for $seconds seconds',
+      'scheduled',
+    );
   }
 
   void _logNotification(String? title, String? body, String type) {
