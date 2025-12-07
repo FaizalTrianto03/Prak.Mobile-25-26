@@ -8,7 +8,12 @@ class NotificationTestView extends GetView<NotificationTestController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Test Notifications')),
+      appBar: AppBar(
+        title: const Text(
+          'Test Notifications',
+          style: TextStyle(fontSize: 20),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(

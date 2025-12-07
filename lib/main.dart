@@ -9,7 +9,6 @@ import 'app/data/services/local_storage_service.dart';
 import 'app/data/services/supabase_service.dart';
 import 'app/data/services/notification_handler.dart';
 import 'app/data/providers/auth_provider.dart';
-import 'app/data/providers/note_provider.dart';
 import 'app/data/providers/todo_provider.dart';
 import 'app/data/providers/theme_provider.dart';
 import 'app/data/services/storage_service.dart';
@@ -38,7 +37,6 @@ Future<void> main() async {
 
     // Initialize Providers
     Get.put(AuthProvider());
-    Get.put(NoteProvider());
     Get.put(StorageService());
     await Get.putAsync(() => LocalStorageService().init());
 

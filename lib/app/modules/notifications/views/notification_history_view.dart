@@ -14,7 +14,10 @@ class NotificationHistoryView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Riwayat Notifikasi'),
+        title: const Text(
+          'Riwayat Notifikasi',
+          style: TextStyle(fontSize: 20),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_outline),

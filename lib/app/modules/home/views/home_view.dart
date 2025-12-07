@@ -97,16 +97,7 @@ class HomeView extends GetView<HomeController> {
               ),
               const SizedBox(height: 16),
 
-              // Notes Card
-              _buildMenuCard(
-                context: context,
-                icon: Icons.note_alt_outlined,
-                title: AppStrings.notes,
-                subtitle: AppStrings.manageNotes,
-                color: theme.colorScheme.primary,
-                onTap: controller.goToNotes,
-              ),
-              const SizedBox(height: 12),
+              // Todos Card
               _buildMenuCard(
                 context: context,
                 icon: Icons.checklist_rounded,
